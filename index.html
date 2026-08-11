@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>THE HOUSE — A Psychological Horror Story</title>
+
+    <meta
+        name="description"
+        content="The House — an atmospheric psychological horror interactive story."
+    >
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         BACKGROUND / EFFECT LAYERS
+    ========================================================== -->
+
+    <div id="background"></div>
+
+    <div id="vignette"></div>
+
+    <div id="grain"></div>
+
+    <div id="scanlines"></div>
+
+    <div id="flash"></div>
+
+    <div id="glitch-layer"></div>
+
+    <div id="blood-overlay"></div>
+
+
+    <!-- =========================================================
+         MAIN GAME
+    ========================================================== -->
+
+    <main id="game">
+
+        <!-- START SCREEN -->
+        <section id="start-screen" class="screen active">
+
+            <div class="start-atmosphere">
+                <div class="fog fog-one"></div>
+                <div class="fog fog-two"></div>
+                <div class="fog fog-three"></div>
+            </div>
+
+            <div class="title-container">
+
+                <div class="small-title">
+                    AN INTERACTIVE HORROR STORY
+                </div>
+
+                <h1>THE HOUSE</h1>
+
+                <div class="title-line"></div>
+
+                <p class="subtitle">
+                    Some memories are better left buried.
+                </p>
+
+                <button id="start-button" class="main-button">
+                    <span>ENTER</span>
+                </button>
+
+                <button id="continue-button" class="secondary-button hidden">
+                    CONTINUE
+                </button>
+
+                <div class="start-warning">
+                    <span class="warning-dot"></span>
+                    HEADPHONES RECOMMENDED
+                </div>
+
+            </div>
+
+            <div class="start-footer">
+                © 2026 — THE HOUSE
+            </div>
+
+        </section>
+
+
+        <!-- CHAPTER SELECT -->
+        <section id="chapter-screen" class="screen">
+
+            <div class="chapter-header">
+
+                <div class="chapter-eyebrow">
+                    THE STORY
+                </div>
+
+                <h2>CHAPTERS</h2>
+
+                <p>
+                    Choose where you want to enter the house.
+                </p>
+
+            </div>
+
+
+            <div class="chapter-grid">
+
+                <!-- CHAPTER 1 -->
+                <button
+                    class="chapter-card unlocked"
+                    data-chapter="1"
+                >
+
+                    <div class="chapter-number">
+                        I
+                    </div>
+
+                    <div class="chapter-image chapter-one-image"></div>
+
+                    <div class="chapter-info">
+
+                        <span>PART 01</span>
+
+                        <h3>The Return</h3>
+
+                        <p>
+                            They came back to the place they swore
+                            they would never see again.
+                        </p>
+
+                    </div>
+
+                    <div class="chapter-arrow">
+                        →
+                    </div>
+
+                </button>
+
+
+                <!-- CHAPTER 2 -->
+                <button
+                    class="chapter-card unlocked"
+                    data-chapter="2"
+                >
+
+                    <div class="chapter-number">
+                        II
+                    </div>
+
+                    <div class="chapter-image chapter-two-image"></div>
+
+                    <div class="chapter-info">
+
+                        <span>PART 02</span>
+
+                        <h3>The House</h3>
+
+                        <p>
+                            The rooms remember things people don't.
+                        </p>
+
+                    </div>
+
+                    <div class="chapter-arrow">
+                        →
+                    </div>
+
+                </button>
+
+
+                <!-- CHAPTER 3 -->
+                <button
+                    class="chapter-card unlocked"
+                    data-chapter="3"
+                >
+
+                    <div class="chapter-number">
+                        III
+                    </div>
+
+                    <div class="chapter-image chapter-three-image"></div>
+
+                    <div class="chapter-info">
+
+                        <span>PART 03</span>
+
+                        <h3>The Truth</h3>
+
+                        <p>
+                            Some doors should never be opened twice.
+                        </p>
+
+                    </div>
+
+                    <div class="chapter-arrow">
+                        →
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <button id="back-to-title" class="back-button">
+                ← BACK
+            </button>
+
+        </section>
+
+
+        <!-- GAME SCREEN -->
+        <section id="story-screen" class="screen">
+
+            <!-- Top UI -->
+            <div class="story-topbar">
+
+                <button id="story-menu" class="icon-button">
+                    ☰
+                </button>
+
+                <div id="chapter-label">
+                    PART 01
+                </div>
+
+                <div class="story-progress">
+                    <div id="progress-bar"></div>
+                </div>
+
+            </div>
+
+
+            <!-- Scene -->
+            <div id="scene-container">
+
+                <img
+                    id="scene-image"
+                    src=""
+                    alt=""
+                >
+
+                <div id="scene-darkness"></div>
+
+            </div>
+
+
+            <!-- Dialogue -->
+            <div id="dialogue-area">
+
+                <div id="speaker-name"></div>
+
+                <div id="dialogue-box">
+
+                    <div id="dialogue-text"></div>
+
+                    <div id="continue-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Choices -->
+            <div id="choices" class="hidden"></div>
+
+
+            <!-- Name Input -->
+            <div id="name-overlay" class="overlay hidden">
+
+                <div class="name-panel">
+
+                    <div class="panel-eyebrow">
+                        WHO ARE YOU?
+                    </div>
+
+                    <h2>Your name</h2>
+
+                    <input
+                        id="name-input"
+                        maxlength="20"
+                        autocomplete="off"
+                        placeholder="Enter your name..."
+                    >
+
+                    <button id="name-confirm" class="main-button">
+                        CONFIRM
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Pause / Menu -->
+            <div id="pause-menu" class="overlay hidden">
+
+                <div class="pause-panel">
+
+                    <div class="panel-eyebrow">
+                        PAUSED
+                    </div>
+
+                    <h2>THE HOUSE</h2>
+
+                    <button id="resume-button" class="main-button">
+                        RESUME
+                    </button>
+
+                    <button id="menu-button" class="secondary-button">
+                        CHAPTER SELECT
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- END SCREEN -->
+        <section id="end-screen" class="screen">
+
+            <div class="end-content">
+
+                <div class="end-eyebrow">
+                    PART ONE
+                </div>
+
+                <h1>THE DOOR<br>WAS ALREADY OPEN.</h1>
+
+                <div class="title-line"></div>
+
+                <p>
+                    END OF PART 1
+                </p>
+
+                <button
+                    id="end-chapters"
+                    class="main-button"
+                >
+                    CHAPTER SELECT
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         AUDIO
+    ========================================================== -->
+
+    <audio id="music" loop></audio>
+    <audio id="sound"></audio>
+
+
+    <script src="game.js"></script>
+
+</body>
+</html>
