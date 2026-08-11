@@ -3,69 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Novel - Chapter Engine</title>
+    <title>My Animated Diary</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Updated fonts for a cuter, hand-drawn and playful look -->
+    <link href="https://fonts.googleapis.com/css2?family=Pangolin&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Main Game Container -->
     <div id="game-container">
 
-        <!-- Background Scene Layers -->
-        <div id="bg-layer" class="bg-layer"></div>
+        <!-- Background Scene Layers (Page turns happen here) -->
+        <div id="bg-layer-container">
+            <div id="bg-layer" class="bg-layer"></div>
+        </div>
         <div id="flash-overlay" class="flash-overlay"></div>
-        <div id="vignette"></div>
+        
+        <!-- Subtle paper texture overlay -->
+        <div id="paper-texture"></div>
 
         <!-- Video Cutscene Container -->
         <div id="video-container" class="hidden">
             <video id="cutscene-player" src="intro.webm" playsinline></video>
-            <button id="skip-intro-btn" class="skip-btn">SKIP INTRO</button>
+            <button id="skip-intro-btn" class="diary-btn skip-btn">Skip Intro ➔</button>
         </div>
 
         <!-- Start Screen / Loading Overlay -->
-        <div id="start-overlay" class="overlay-screen active">
-            <div class="title-box">
-                <h1 class="glow-title">UNTITLED MEMORY</h1>
-                <p class="subtitle">An Interactive Mystery</p>
-                <button id="start-game-btn" class="glow-btn">ENTER GAME</button>
+        <div id="start-overlay" class="overlay-screen active start-bg">
+            <div class="diary-cover">
+                <h1 class="sparkle-title">The House</h1>
+                <p class="subtitle">A Story of Memories</p>
+                <!-- Added a container to make button animate -->
+                <div class="anim-loop-float">
+                    <button id="start-game-btn" class="fluffy-btn start-btn">Open Diary 📖</button>
+                </div>
             </div>
         </div>
 
         <!-- Chapter Select Menu -->
-        <div id="chapter-menu" class="overlay-screen hidden">
-            <div class="menu-box">
-                <h2>CHAPTER SELECT</h2>
+        <div id="chapter-menu" class="overlay-screen hidden menu-bg">
+            <div class="sticker-box">
+                <h2>Go To Page...</h2>
                 <div class="chapter-buttons">
-                    <button class="ch-btn" onclick="startChapter(1)">Part 1: The Return</button>
-                    <button class="ch-btn" onclick="startChapter(2)">Part 2: Shadows</button>
-                    <button class="ch-btn disabled" onclick="startChapter(3)">Part 3 (Coming Soon)</button>
+                    <button class="ch-btn anim-hover-jiggle" onclick="startChapter(1)">Page 1: Returning</button>
+                    <button class="ch-btn anim-hover-jiggle" onclick="startChapter(2)">Page 2: Shadows</button>
+                    <button class="ch-btn disabled" onclick="startChapter(3)">Page 3 (Soon!)</button>
                 </div>
             </div>
         </div>
 
         <!-- Name Input Modal -->
         <div id="name-modal" class="overlay-modal hidden">
-            <div class="modal-box">
-                <label for="player-name-input">What was your name again?</label>
-                <input type="text" id="player-name-input" maxlength="20" placeholder="Y/N" autofocus>
-                <button id="confirm-name-btn" class="glow-btn">Confirm</button>
+            <div class="fluffy-modal-box anim-pop-in">
+                <label for="player-name-input">Dear Diary, my name is...</label>
+                <input type="text" id="player-name-input" maxlength="15" placeholder="Your Name" autofocus>
+                <button id="confirm-name-btn" class="fluffy-btn anim-hover-jiggle">Write Name</button>
             </div>
         </div>
 
         <!-- Choices Menu -->
         <div id="choice-container" class="choice-box hidden"></div>
 
-        <!-- Dialogue Box -->
-        <div id="dialogue-box" class="dialogue-container hidden">
-            <div id="speaker-name" class="speaker-tag"></div>
+        <!-- Dialogue Box - Now looks like a stitched leather/cloth panel -->
+        <div id="dialogue-box" class="diary-dialogue-container hidden">
+            <div id="speaker-name" class="speaker-tag-sticker"></div>
             <div id="dialogue-text" class="dialogue-content"></div>
-            <div class="click-indicator">▼</div>
+            <!-- Changed to a heart for 'fluffy' aesthetic -->
+            <div class="click-indicator-heart">❤</div>
         </div>
 
     </div>
 
-    <!-- Embedded Scripts for Chapters -->
+    <!-- Embedded Scripts for Chapters (unchanged logic) -->
     <script src="c1.js"></script>
     <script src="c2.js"></script>
     <script src="c3.js"></script>
