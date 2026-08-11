@@ -1,332 +1,60 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
-
-    <title>The House — A Horror Story</title>
-
-    <meta
-        name="description"
-        content="A cinematic psychological horror visual novel."
-    >
+    <title>Aetheria</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- =========================================================
-         BACKGROUND
-    ========================================================== -->
+    <div id="loading">
 
-    <div id="grain"></div>
-    <div id="vignette"></div>
+        <div class="moon"></div>
 
-    <div id="background">
-        <img id="sceneImage" src="" alt="">
-    </div>
+        <div class="mist mist1"></div>
+        <div class="mist mist2"></div>
 
-    <!-- =========================================================
-         INTRO / TITLE SCREEN
-    ========================================================== -->
+        <div class="particles">
+            <span>✦</span>
+            <span>✧</span>
+            <span>·</span>
+            <span>♡</span>
+            <span>✦</span>
+            <span>·</span>
+        </div>
 
-    <section id="titleScreen" class="screen active">
+        <div class="title">
 
-        <div class="titleAtmosphere"></div>
-
-        <div class="titleContent">
-
-            <div class="eyebrow">
-                AN INTERACTIVE HORROR STORY
-            </div>
-
-            <h1>
-                THE HOUSE
-            </h1>
-
-            <div class="titleLine"></div>
-
-            <p class="subtitle">
-                Some places remember what you tried to forget.
+            <p class="small-title">
+                A STORY OF MEMORIES
             </p>
 
-            <button id="startButton" class="mainButton">
+            <h1>AETHERIA</h1>
+
+            <div class="line"></div>
+
+            <p class="subtitle">
+                Some memories are better left forgotten.
+            </p>
+
+            <button id="startButton">
                 <span>START GAME</span>
-                <i></i>
-            </button>
-
-            <button id="chapterButton" class="secondaryButton">
-                CHAPTER SELECT
-            </button>
-
-            <div class="titleFooter">
-                <span>HEADPHONES RECOMMENDED</span>
-                <span>•</span>
-                <span>© 2026</span>
-            </div>
-
-        </div>
-    </section>
-
-
-    <!-- =========================================================
-         CHAPTER SELECT
-    ========================================================== -->
-
-    <section id="chapterScreen" class="screen">
-
-        <div class="chapterHeader">
-
-            <button id="backToTitle" class="backButton">
-                ← BACK
-            </button>
-
-            <div>
-                <div class="smallTitle">
-                    THE HOUSE
-                </div>
-
-                <h2>
-                    CHAPTERS
-                </h2>
-            </div>
-
-        </div>
-
-        <div class="chapterGrid">
-
-            <button
-                class="chapterCard unlocked"
-                data-chapter="1"
-            >
-                <div class="chapterNumber">01</div>
-
-                <div class="chapterInfo">
-                    <span class="chapterStatus">
-                        AVAILABLE
-                    </span>
-
-                    <h3>
-                        THE RETURN
-                    </h3>
-
-                    <p>
-                        Some memories refuse to stay buried.
-                    </p>
-                </div>
-
-                <div class="cardArrow">
-                    →
-                </div>
-            </button>
-
-
-            <button
-                class="chapterCard unlocked"
-                data-chapter="2"
-            >
-                <div class="chapterNumber">02</div>
-
-                <div class="chapterInfo">
-                    <span class="chapterStatus">
-                        AVAILABLE
-                    </span>
-
-                    <h3>
-                        CHAPTER II
-                    </h3>
-
-                    <p>
-                        The house has not forgotten them.
-                    </p>
-                </div>
-
-                <div class="cardArrow">
-                    →
-                </div>
-            </button>
-
-
-            <button
-                class="chapterCard unlocked"
-                data-chapter="3"
-            >
-                <div class="chapterNumber">03</div>
-
-                <div class="chapterInfo">
-                    <span class="chapterStatus">
-                        AVAILABLE
-                    </span>
-
-                    <h3>
-                        CHAPTER III
-                    </h3>
-
-                    <p>
-                        There are things waiting upstairs.
-                    </p>
-                </div>
-
-                <div class="cardArrow">
-                    →
-                </div>
+                <small>✦</small>
             </button>
 
         </div>
 
-        <div class="chapterHint">
-            Select a chapter to begin.
+        <div class="warning">
+            HEADPHONES RECOMMENDED
         </div>
 
-    </section>
+    </div>
 
-
-    <!-- =========================================================
-         GAME SCREEN
-    ========================================================== -->
-
-    <section id="gameScreen" class="screen gameScreen">
-
-        <div id="chapterIndicator">
-            CHAPTER I
-        </div>
-
-        <button id="gameMenuButton">
-            ☰
-        </button>
-
-        <div id="gameMenu" class="hidden">
-
-            <button id="menuRestart">
-                RESTART
-            </button>
-
-            <button id="menuChapters">
-                CHAPTER SELECT
-            </button>
-
-            <button id="menuClose">
-                CLOSE
-            </button>
-
-        </div>
-
-
-        <!-- FLASH EFFECT -->
-
-        <div id="flash"></div>
-
-        <!-- SCENE -->
-
-        <div id="sceneLayer">
-
-            <img
-                id="gameImage"
-                src=""
-                alt="Scene"
-            >
-
-            <div id="sceneOverlay"></div>
-
-        </div>
-
-
-        <!-- TEXT -->
-
-        <div id="dialogueBox">
-
-            <div id="speaker"></div>
-
-            <div id="dialogue">
-            </div>
-
-            <div id="continueIndicator">
-                ▼
-            </div>
-
-        </div>
-
-
-        <!-- CHOICES -->
-
-        <div id="choices"></div>
-
-
-        <!-- NAME INPUT -->
-
-        <div id="nameInputOverlay" class="hidden">
-
-            <div class="nameBox">
-
-                <div class="nameLabel">
-                    WHAT WAS YOUR NAME?
-                </div>
-
-                <input
-                    id="playerNameInput"
-                    maxlength="20"
-                    autocomplete="off"
-                    placeholder="Enter your name"
-                >
-
-                <button id="nameConfirm">
-                    CONTINUE
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- END SCREEN -->
-
-        <div id="endingScreen" class="hidden">
-
-            <div class="endingContent">
-
-                <div class="endingSmall">
-                    PART I
-                </div>
-
-                <h2>
-                    THE END
-                </h2>
-
-                <p>
-                    But some doors should never have been opened.
-                </p>
-
-                <button id="endingChapters">
-                    CHAPTER SELECT
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =========================================================
-         AUDIO
-    ========================================================== -->
-
-    <audio
-        id="music"
-        loop
-        preload="auto"
-    ></audio>
-
-    <audio
-        id="sound"
-        preload="auto"
-    ></audio>
-
+    <div id="transition"></div>
 
     <script src="script.js"></script>
 
