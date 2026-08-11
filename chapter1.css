@@ -1,0 +1,814 @@
+@import url(
+'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap'
+);
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+
+    margin: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #05060b;
+
+    color: white;
+}
+
+
+body {
+
+    font-family: "Nunito", sans-serif;
+}
+
+
+/* =========================
+GAME
+========================= */
+
+#game {
+
+    position: relative;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+SCENE
+========================= */
+
+#scene {
+
+    position: absolute;
+
+    inset: -3%;
+
+    background:
+
+        center / cover
+
+        no-repeat;
+
+    transition:
+
+        opacity .6s ease,
+
+        transform 5s ease,
+
+        filter .3s ease;
+}
+
+
+#scene.zoom {
+
+    transform: scale(1.08);
+}
+
+
+/* =========================
+VIGNETTE
+========================= */
+
+#vignette {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+            circle,
+            transparent 30%,
+            #00000099 100%
+        );
+}
+
+
+/* =========================
+GRAIN
+========================= */
+
+#grain {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    opacity: .035;
+
+    background-image:
+        url(
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"
+        );
+}
+
+
+/* =========================
+PARTICLES
+========================= */
+
+#particles span {
+
+    position: absolute;
+
+    color: #eee8ff;
+
+    opacity: .25;
+
+    animation: float 7s linear infinite;
+}
+
+
+@keyframes float {
+
+    from {
+
+        transform:
+            translateY(20px)
+            scale(.5);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: .5;
+    }
+
+    to {
+
+        transform:
+            translateY(-200px)
+            translateX(30px);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================
+CHAPTER TITLE
+========================= */
+
+#chapterTitle {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 20;
+
+    background: #000b;
+
+    pointer-events: none;
+
+    animation: titleFade 4s forwards;
+}
+
+
+#chapterTitle p {
+
+    letter-spacing: .5em;
+
+    font-size: 11px;
+
+    opacity: .5;
+}
+
+
+#chapterTitle h1 {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size: 65px;
+
+    font-weight: 500;
+
+    letter-spacing: .18em;
+
+    margin: 8px;
+}
+
+
+#chapterTitle span {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-style: italic;
+
+    opacity: .55;
+}
+
+
+@keyframes titleFade {
+
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* =========================
+DIALOGUE
+========================= */
+
+#dialogueBox {
+
+    position: absolute;
+
+    z-index: 10;
+
+    left: 5vw;
+
+    right: 5vw;
+
+    bottom: 4vh;
+
+    min-height: 150px;
+
+    padding:
+        30px 40px 28px;
+
+    border-radius: 26px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #090b15e8,
+            #251c30dd
+        );
+
+    border:
+
+        1px solid
+        #ffffff20;
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+
+        0 20px 70px #0009;
+
+    cursor: pointer;
+
+    opacity: 0;
+
+    transform:
+        translateY(20px);
+
+    transition:
+        .35s ease;
+}
+
+
+#dialogueBox.visible {
+
+    opacity: 1;
+
+    transform:
+        translateY(0);
+}
+
+
+#speaker {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    letter-spacing: .12em;
+
+    color: #c7b2ff;
+
+    margin-bottom: 8px;
+}
+
+
+#dialogueText {
+
+    font-size: 18px;
+
+    line-height: 1.6;
+
+    color: #f7f4fb;
+}
+
+
+#nextIcon {
+
+    position: absolute;
+
+    right: 22px;
+
+    bottom: 15px;
+
+    opacity: .65;
+
+    animation:
+        nextPulse 1.2s infinite;
+}
+
+
+@keyframes nextPulse {
+
+    50% {
+
+        transform:
+            translateY(4px);
+
+        opacity: .25;
+    }
+}
+
+
+/* =========================
+THOUGHTS
+========================= */
+
+#dialogueBox.thought #dialogueText {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size: 21px;
+
+    font-style: italic;
+
+    color: #a9c8d8;
+}
+
+
+#dialogueBox.thought #speaker {
+
+    display: none;
+}
+
+
+/* WHISPER */
+
+#dialogueBox.whisper {
+
+    background:
+        #101726cc;
+
+    border-color:
+        #8da3bd55;
+}
+
+
+#dialogueBox.whisper #dialogueText {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-style: italic;
+
+    color: #8da3bd;
+
+    text-shadow:
+        0 0 15px #8da3bd;
+}
+
+
+/* MC */
+
+#dialogueBox.mc #speaker {
+
+    display: none;
+}
+
+
+#dialogueBox.mc #dialogueText {
+
+    text-align: center;
+}
+
+
+/* HORROR */
+
+#dialogueBox.horror {
+
+    background:
+        linear-gradient(
+            135deg,
+            #160a11ee,
+            #2a101bdd
+        );
+
+    border-color:
+        #b86a8566;
+}
+
+
+#dialogueBox.horror #speaker {
+
+    color:
+        #e49ab4;
+}
+
+
+/* =========================
+CHOICES
+========================= */
+
+#choices {
+
+    position: absolute;
+
+    z-index: 30;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    width:
+        min(650px, 88vw);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap: 13px;
+}
+
+
+.choice {
+
+    padding:
+        19px 23px;
+
+    border-radius:
+        17px;
+
+    background:
+        #0a0c15dd;
+
+    border:
+        1px solid
+        #ffffff20;
+
+    color: white;
+
+    text-align:
+        left;
+
+    cursor:
+        pointer;
+
+    backdrop-filter:
+        blur(15px);
+
+    transition:
+        .25s;
+}
+
+
+.choice:hover {
+
+    transform:
+        translateX(7px);
+
+    background:
+        #c7b2ff20;
+
+    border-color:
+        #c7b2ff55;
+}
+
+
+/* =========================
+NAME
+========================= */
+
+#nameScreen {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 50;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        #05060be8;
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+.namePanel {
+
+    width:
+        min(500px, 88vw);
+
+    padding:
+        40px;
+
+    text-align:
+        center;
+
+    border-radius:
+        28px;
+
+    background:
+        #ffffff0b;
+
+    border:
+        1px solid
+        #ffffff20;
+
+    box-shadow:
+        0 25px 80px #000b;
+}
+
+
+.namePanel p {
+
+    font-size:
+        10px;
+
+    letter-spacing:
+        .3em;
+
+    opacity:
+        .5;
+}
+
+
+.namePanel h2 {
+
+    font-family:
+        "Cormorant Garamond",
+        serif;
+
+    font-size:
+        32px;
+}
+
+
+#playerName {
+
+    width:
+        100%;
+
+    padding:
+        15px;
+
+    border-radius:
+        13px;
+
+    border:
+        1px solid
+        #ffffff22;
+
+    background:
+        #ffffff0c;
+
+    color:
+        white;
+
+    text-align:
+        center;
+
+    outline:
+        none;
+}
+
+
+#nameSubmit {
+
+    margin-top:
+        15px;
+
+    padding:
+        14px 25px;
+
+    border:
+        1px solid
+        #ffffff22;
+
+    border-radius:
+        30px;
+
+    background:
+        #ffffff10;
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================
+SKIP
+========================= */
+
+#skipIntro {
+
+    position:
+        absolute;
+
+    z-index:
+        60;
+
+    top:
+        20px;
+
+    right:
+        20px;
+
+    padding:
+        9px 13px;
+
+    background:
+        #00000088;
+
+    color:
+        white;
+
+    border:
+        1px solid
+        #ffffff22;
+
+    border-radius:
+        10px;
+
+    cursor:
+        pointer;
+
+    font-size:
+        10px;
+
+    letter-spacing:
+        .1em;
+}
+
+
+/* =========================
+FLASH
+========================= */
+
+#flash {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        white;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0;
+
+    z-index:
+        100;
+}
+
+
+#flash.active {
+
+    animation:
+        flash .6s forwards;
+}
+
+
+@keyframes flash {
+
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* =========================
+SHAKE
+========================= */
+
+.shake {
+
+    animation:
+        shake .18s linear 3;
+}
+
+
+@keyframes shake {
+
+    25% {
+        transform:
+            translateX(10px);
+    }
+
+    50% {
+        transform:
+            translateX(-10px);
+    }
+
+    75% {
+        transform:
+            translateX(7px);
+    }
+}
+
+
+@media(max-width:600px) {
+
+    #dialogueBox {
+
+        left: 3vw;
+        right: 3vw;
+
+        bottom: 2vh;
+
+        padding:
+            22px;
+
+        min-height:
+            130px;
+    }
+
+    #dialogueText {
+
+        font-size:
+            16px;
+    }
+
+    #chapterTitle h1 {
+
+        font-size:
+            42px;
+    }
+  }
