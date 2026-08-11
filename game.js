@@ -1,101 +1,143 @@
 /* =========================================================
    THE HOUSE
-   Browser Story Engine
+   Browser Visual Novel Engine
 ========================================================= */
 
 
 /* =========================================================
    ASSET SYSTEM
+
+   Images are in the ROOT of the GitHub repository.
+
+   Example:
+
+   index.html
+   style.css
+   script.js
+
+   ben_beach.png
+   ben_bleeding.jpeg
+   mina1.png
+   mina_1.jpeg
+   etc.
+
+   The engine automatically tries PNG / JPG / JPEG.
+   Your original files are NOT renamed.
 ========================================================= */
 
-const ASSETS = {
+const imageCache = {};
 
-    images: {
+const imageExtensions = [
+    ".png",
+    ".jpg",
+    ".jpeg"
+];
 
-        beach: "ben_beach.png",
+function findImage(name, callback) {
 
-        bleeding: "ben_bleeding.png",
-
-        dead: "ben_dead.png",
-
-        elias1: "elias_1.png",
-        elias2: "elias_2.png",
-        elias3: "elias_3.png",
-
-        mina1: "mina_1.png",
-        mina2: "mina_2.png",
-        mina3: "mina_3.png",
-        mina4: "mina_4.png",
-
-        minaEl ias: "mina_elias.png",
-
-        house: "house.png",
-        upstairs: "upstairs.png",
-
-        door: "door.png"
-    },
-
-
-    audio: {
-
-        ocean: "ocean.mp3",
-        car: "car_drive.mp3",
-        heart: "heartbeat.mp3",
-
-        hit: "impact.mp3",
-        ring: "ringing.mp3",
-        door: "door_creak.mp3",
-        creak: "wood_creak.mp3",
-
-        radio: "radio_static.mp3",
-        sting: "horror_sting.mp3",
-
-        hall: "hall_ambience.mp3",
-        steps: "footsteps.mp3",
-        whisper: "ghostly_whisper.mp3",
-        clatter: "metal_clatter.mp3",
-
-        benTheme: "ben_theme.mp3",
-        glitch: "glitch.mp3",
-        pills: "pills.mp3"
+    if (imageCache[name]) {
+        callback(imageCache[name]);
+        return;
     }
-};
+
+    let index = 0;
+
+    function tryNext() {
+
+        if (index >= imageExtensions.length) {
+
+            console.warn(
+                "Could not find image:",
+                name
+            );
+
+            callback("");
+            return;
+        }
+
+        const src =
+            "./" +
+            name +
+            imageExtensions[index];
+
+        const img =
+            new Image();
+
+        img.onload = function () {
+
+            imageCache[name] =
+                src;
+
+            callback(src);
+        };
+
+        img.onerror = function () {
+
+            index++;
+
+            tryNext();
+        };
+
+        img.src = src;
+    }
+
+    tryNext();
+}
 
 
-/*
-    Some of your original Ren'Py names use both
-    mina1 and mina_1 style naming.
+/* =========================================================
+   AUDIO
+========================================================= */
 
-    This helper lets the browser try alternate filenames.
-*/
+const AUDIO = {
 
-const IMAGE_ALIASES = {
+    ocean:
+        "audio/waves.mp3",
 
-    "mina_1.png": [
-        "mina_1.png",
-        "mina1.png"
-    ],
+    car:
+        "audio/car_drive.mp3",
 
-    "mina_2.png": [
-        "mina_2.png",
-        "mina2.png"
-    ],
+    heart:
+        "audio/heartbeat.mp3",
 
-    "mina_3.png": [
-        "mina_3.png",
-        "mina3.png"
-    ],
+    sfx_hit:
+        "audio/impact.mp3",
 
-    "mina_4.png": [
-        "mina_4.png",
-        "mina4.png"
-    ],
+    sfx_ring:
+        "audio/ringing.mp3",
 
-    "mina_elias.png": [
-        "mina_elias.png",
-        "minaElias.png",
-        "mina_elias.jpg"
-    ]
+    sfx_door:
+        "audio/door_creak.mp3",
+
+    sfx_creak:
+        "audio/wood_creak.mp3",
+
+    sfx_radio:
+        "audio/radio_static.mp3",
+
+    sfx_sting:
+        "audio/horror_sting.mp3",
+
+    hall_amb:
+        "audio/hall_ambience.mp3",
+
+    sfx_steps:
+        "audio/footsteps.mp3",
+
+    sfx_whisper:
+        "audio/ghostly_whisper.mp3",
+
+    sfx_clatter:
+        "audio/metal_clatter.mp3",
+
+    ben_theme:
+        "audio/ben_theme.mp3",
+
+    memory_glitch:
+        "audio/glitch.mp3",
+
+    sfx_pill_bottle:
+        "audio/pills.mp3"
 };
 
 
@@ -103,819 +145,101 @@ const IMAGE_ALIASES = {
    DOM
 ========================================================= */
 
-const screens = {
+const titleScreen =
+    document.getElementById("titleScreen");
 
-    start: document.getElementById("start-screen"),
+const chapterScreen =
+    document.getElementById("chapterScreen");
 
-    chapters: document.getElementById("chapter-screen"),
+const gameScreen =
+    document.getElementById("gameScreen");
 
-    story: document.getElementById("story-screen"),
+const startButton =
+    document.getElementById("startButton");
 
-    end: document.getElementById("end-screen")
-};
+const chapterButton =
+    document.getElementById("chapterButton");
 
+const backToTitle =
+    document.getElementById("backToTitle");
 
-const sceneImage = document.getElementById("scene-image");
+const gameImage =
+    document.getElementById("gameImage");
 
-const dialogueText = document.getElementById("dialogue-text");
+const backgroundImage =
+    document.getElementById("sceneImage");
 
-const speakerName = document.getElementById("speaker-name");
+const dialogueBox =
+    document.getElementById("dialogueBox");
 
-const choicesContainer = document.getElementById("choices");
+const speaker =
+    document.getElementById("speaker");
 
-const progressBar = document.getElementById("progress-bar");
+const dialogue =
+    document.getElementById("dialogue");
 
-const music = document.getElementById("music");
+const choices =
+    document.getElementById("choices");
 
-const sound = document.getElementById("sound");
+const flash =
+    document.getElementById("flash");
 
-const flash = document.getElementById("flash");
+const music =
+    document.getElementById("music");
 
-const glitch = document.getElementById("glitch-layer");
+const sound =
+    document.getElementById("sound");
 
-const storyScreen = document.getElementById("story-screen");
+const nameOverlay =
+    document.getElementById("nameInputOverlay");
 
-const nameOverlay = document.getElementById("name-overlay");
+const nameInput =
+    document.getElementById("playerNameInput");
 
-const pauseMenu = document.getElementById("pause-menu");
+const nameConfirm =
+    document.getElementById("nameConfirm");
+
+const endingScreen =
+    document.getElementById("endingScreen");
+
+const gameMenu =
+    document.getElementById("gameMenu");
 
 
 /* =========================================================
    GAME STATE
 ========================================================= */
 
-const state = {
+let playerName =
+    localStorage.getItem("house_player_name")
+    || "Y/N";
 
-    chapter: 1,
+let currentChapter = 1;
 
-    sceneIndex: 0,
+let currentScene = null;
 
-    playerName: "Y/N",
+let typing = false;
 
-    typing: false,
+let typeTimer = null;
 
-    waiting: false,
+let currentText = "";
 
-    paused: false,
-
-    audioUnlocked: false,
-
-    saveKey: "the-house-progress"
-
-};
+let musicName = "";
 
 
 /* =========================================================
-   STORY DATA
-========================================================= */
-
-const chapters = {
-
-    1: {
-
-        title: "THE RETURN",
-
-        label: "PART 01",
-
-        scenes: [
-
-            {
-                image: "beach",
-                effect: "flash",
-                music: "ocean",
-
-                dialogue: [
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Promise me we won't forget this summer."
-                    }
-                ]
-            },
-
-
-            {
-                image: "bleeding",
-                effect: "shake",
-
-                sfx: "hit",
-
-                dialogue: [
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "..."
-                    }
-                ]
-            },
-
-
-            {
-                image: "dead",
-                effect: "fade",
-
-                dialogue: [
-                    {
-                        speaker: "Ben",
-                        text: "You left me there."
-                    }
-                ]
-            },
-
-
-            {
-                image: null,
-
-                music: "car",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "My chest hurts."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "The ringing won't stop."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "I can't remember falling asleep."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "Hey."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "Hey."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias3",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "You were screaming again."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Again?"
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "My throat burns."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Like I swallowed seawater."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "..."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "You still with me?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "What was your name again?"
-                    }
-
-                ],
-
-                inputName: true
-            },
-
-
-            {
-                image: "elias2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "{{name}}."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "Right."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "Can we just get this over with?"
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Nobody is the same anymore."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Not after last year."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "bleeding",
-
-                effect: "glitch",
-
-                sfx: "sting",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "A memory flashes behind my eyes."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "We're almost there."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "We cut all ties with this place."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "Clean any evidence if there is any left."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "But what evidence?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias3",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "Then we leave."
-                    }
-
-                ],
-
-                choices: [
-
-                    {
-                        text: "Why are you nervous?",
-
-                        action: "nervous"
-                    },
-
-                    {
-                        text: "We shouldn't have come back here.",
-
-                        action: "back"
-                    },
-
-                    {
-                        text: "Stay silent.",
-
-                        action: "silent"
-                    }
-
-                ]
-            },
-
-
-            /* NERVOUS BRANCH */
-
-            {
-                id: "nervous",
-
-                image: "elias1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "We're driving back to the place I despise."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "How do you want me to act?"
-                    }
-
-                ],
-
-                next: "house"
-            },
-
-
-            /* BACK BRANCH */
-
-            {
-                id: "back",
-
-                image: "mina3",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "Then why did you agree to come?"
-                    },
-
-                    {
-                        speaker: "Mina",
-                        text: "Regretting it now is useless."
-                    }
-
-                ],
-
-                next: "house"
-            },
-
-
-            /* SILENT BRANCH */
-
-            {
-                id: "silent",
-
-                image: "mina2",
-
-                sfx: "radio",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "The radio crackles softly."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "whisper",
-                        text: "don't leave me"
-                    },
-
-                    {
-                        speaker: "Mina",
-                        text: "I hate this."
-                    }
-
-                ],
-
-                next: "house"
-            },
-
-
-            /* HOUSE */
-
-            {
-                id: "house",
-
-                image: "house",
-
-                music: "ocean",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "I forgot how quiet this place was."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "upstairs",
-
-                sfx: "creak",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Something moved upstairs."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "The air smells different."
-                    },
-
-                    {
-                        speaker: "",
-                        text: "Doesn't it smell weird?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "You mean like a dead body rotten."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina3",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "Do you ever think about how little he stayed alive?"
-                    },
-
-                    {
-                        speaker: "",
-                        text: "And why would you ask that?"
-                    }
-
-                ],
-
-                sfx: "sting"
-            },
-
-
-            {
-                image: "mina4",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "No reason."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina_elias",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "We're standing outside talking like ghosts."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "Ben would've made fun of us for this."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "Ben hated sunsets here."
-                    },
-
-                    {
-                        speaker: "",
-                        text: "Still he should have come, shouldn't he?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias1",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "Ben hated this house."
-                    },
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "That isn't true."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "Especially after that incident started staying here."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "He knew if he came we would come too."
-                    },
-
-                    {
-                        speaker: "Elias",
-                        text: "...Let's just get this over with."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "upstairs",
-
-                effect: "shake",
-
-                sfx: "sting",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "Someone is watching us."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "...Do you think she cleaned it all up?"
-                    },
-
-                    {
-                        speaker: "",
-                        text: "Cleaned what?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "elias2",
-
-                dialogue: [
-
-                    {
-                        speaker: "Elias",
-                        text: "...There wasn't so much of that, you know."
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "mina3",
-
-                dialogue: [
-
-                    {
-                        speaker: "Mina",
-                        text: "Why are you being so cryptic?"
-                    }
-
-                ]
-            },
-
-
-            {
-                image: "door",
-
-                sfx: "door",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "The front door is already open."
-                    }
-
-                ]
-            }
-
-        ]
-
-    },
-
-
-    2: {
-
-        title: "THE HOUSE",
-
-        label: "PART 02",
-
-        scenes: [
-
-            {
-                image: "house",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "The second chapter is waiting..."
-                    },
-
-                    {
-                        speaker: "",
-                        text: "Your existing Chapter 2 content can be added here."
-                    }
-
-                ]
-            }
-
-        ]
-
-    },
-
-
-    3: {
-
-        title: "THE TRUTH",
-
-        label: "PART 03",
-
-        scenes: [
-
-            {
-                image: "upstairs",
-
-                dialogue: [
-
-                    {
-                        speaker: "",
-                        type: "thought",
-                        text: "The third chapter is waiting..."
-                    },
-
-                    {
-                        speaker: "",
-                        text: "Your existing Chapter 3 content can be added here."
-                    }
-
-                ]
-
-            }
-
-        ]
-
-    }
-
-};
-
-
-/* =========================================================
-   IMAGE LOADER
-========================================================= */
-
-function resolveImage(key) {
-
-    if (!key) {
-        return null;
-    }
-
-    const filename = ASSETS.images[key];
-
-    if (!filename) {
-        return key;
-    }
-
-    return filename;
-}
-
-
-/* =========================================================
-   SCREEN MANAGEMENT
+   SCREEN SWITCHING
 ========================================================= */
 
 function showScreen(screen) {
 
-    Object.values(screens).forEach(s => {
+    document
+        .querySelectorAll(".screen")
+        .forEach(s => {
 
-        s.classList.remove("active");
+            s.classList.remove("active");
 
-    });
+        });
 
     screen.classList.add("active");
 }
@@ -925,69 +249,99 @@ function showScreen(screen) {
    AUDIO
 ========================================================= */
 
-function unlockAudio() {
+function playSound(name) {
 
-    state.audioUnlocked = true;
+    if (!AUDIO[name]) {
+        console.warn(
+            "Missing audio:",
+            name
+        );
 
-    /*
-        Browser autoplay protection is bypassed after
-        the user clicks the ENTER button.
-    */
+        return;
+    }
 
-    music.volume = 0;
+    sound.pause();
 
-    music.play().catch(() => {});
+    sound.currentTime = 0;
 
-    music.pause();
+    sound.src =
+        AUDIO[name];
 
+    sound.volume = 0.9;
+
+    sound.play()
+        .catch(() => {});
 }
 
 
-function playMusic(file, volume = .65) {
+function playMusic(
+    name,
+    volume = 0.7
+) {
 
-    if (!file) {
+    if (!AUDIO[name]) {
         return;
     }
 
-    const path = ASSETS.audio[file] || file;
-
-    if (music.src.endsWith(path)) {
-
-        music.volume = volume;
-
-        if (music.paused) {
-            music.play().catch(() => {});
-        }
-
+    if (
+        musicName === name &&
+        !music.paused
+    ) {
         return;
     }
 
     music.pause();
 
-    music.src = path;
+    musicName = name;
+
+    music.src =
+        AUDIO[name];
+
+    music.loop = true;
 
     music.volume = 0;
 
-    music.play().catch(() => {});
+    music.play()
+        .catch(() => {});
+
+    fadeMusic(volume);
+}
 
 
-    let current = 0;
+function fadeMusic(target) {
 
-    const fade = setInterval(() => {
+    let current =
+        music.volume;
 
-        current += .04;
+    const difference =
+        target - current;
 
-        music.volume = Math.min(
-            volume,
-            current
-        );
+    const steps = 20;
 
-        if (current >= volume) {
-            clearInterval(fade);
-        }
+    let count = 0;
 
-    }, 50);
+    const interval =
+        setInterval(() => {
 
+            count++;
+
+            current +=
+                difference / steps;
+
+            music.volume =
+                Math.max(
+                    0,
+                    Math.min(
+                        1,
+                        current
+                    )
+                );
+
+            if (count >= steps) {
+                clearInterval(interval);
+            }
+
+        }, 50);
 }
 
 
@@ -995,113 +349,98 @@ function stopMusic() {
 
     music.pause();
 
-}
+    music.currentTime = 0;
 
-
-function playSFX(file) {
-
-    if (!file) {
-        return;
-    }
-
-    const path = ASSETS.audio[file] || file;
-
-    sound.src = path;
-
-    sound.currentTime = 0;
-
-    sound.volume = .9;
-
-    sound.play().catch(() => {});
-
+    musicName = "";
 }
 
 
 /* =========================================================
-   VISUAL EFFECTS
+   IMAGE DISPLAY
 ========================================================= */
 
-function triggerFlash() {
+function showImage(
+    name,
+    effect = "normal"
+) {
 
-    flash.classList.remove("flash-active");
+    findImage(
+        name,
+        src => {
+
+            if (!src) {
+                return;
+            }
+
+            gameImage.classList.remove(
+                "visible"
+            );
+
+            setTimeout(() => {
+
+                gameImage.src = src;
+
+                gameImage.classList.remove(
+                    "horrorJerk"
+                );
+
+                if (
+                    effect === "jerk"
+                ) {
+
+                    void gameImage.offsetWidth;
+
+                    gameImage.classList.add(
+                        "horrorJerk"
+                    );
+                }
+
+                gameImage.classList.add(
+                    "visible"
+                );
+
+            }, 120);
+
+        }
+    );
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function setBackground(name) {
+
+    findImage(
+        name,
+        src => {
+
+            if (!src) return;
+
+            backgroundImage.src =
+                src;
+
+        }
+    );
+}
+
+
+/* =========================================================
+   FLASH
+========================================================= */
+
+function flashScreen() {
+
+    flash.classList.remove(
+        "flashActive"
+    );
 
     void flash.offsetWidth;
 
-    flash.classList.add("flash-active");
-}
-
-
-function triggerGlitch() {
-
-    glitch.classList.remove("glitch-active");
-
-    void glitch.offsetWidth;
-
-    glitch.classList.add("glitch-active");
-}
-
-
-function triggerShake() {
-
-    storyScreen.classList.remove("shake");
-
-    void storyScreen.offsetWidth;
-
-    storyScreen.classList.add("shake");
-}
-
-
-/* =========================================================
-   SCENE IMAGE
-========================================================= */
-
-function setScene(imageKey, effect) {
-
-    if (!imageKey) {
-
-        sceneImage.style.opacity = "0";
-
-        return;
-    }
-
-    const image = resolveImage(imageKey);
-
-    sceneImage.classList.remove("scene-enter");
-
-    sceneImage.style.opacity = "0";
-
-    setTimeout(() => {
-
-        sceneImage.src = image;
-
-        sceneImage.onload = () => {
-
-            sceneImage.style.opacity = "1";
-
-            sceneImage.classList.add("scene-enter");
-
-        };
-
-    }, 150);
-
-
-    if (effect === "flash") {
-
-        setTimeout(triggerFlash, 100);
-    }
-
-
-    if (effect === "glitch") {
-
-        setTimeout(triggerGlitch, 100);
-    }
-
-
-    if (effect === "shake") {
-
-        setTimeout(triggerShake, 100);
-    }
-
+    flash.classList.add(
+        "flashActive"
+    );
 }
 
 
@@ -1109,95 +448,233 @@ function setScene(imageKey, effect) {
    TYPEWRITER
 ========================================================= */
 
-function typeText(text, element, speed = 28) {
+function typeText(
+    text,
+    callback
+) {
 
-    return new Promise(resolve => {
+    clearTimeout(typeTimer);
 
-        state.typing = true;
+    typing = true;
 
-        element.textContent = "";
+    currentText = text;
 
-        let index = 0;
+    dialogue.textContent = "";
 
+    let i = 0;
 
-        const interval = setInterval(() => {
+    function type() {
 
-            element.textContent += text[index];
+        if (i < text.length) {
 
-            index++;
+            dialogue.textContent +=
+                text.charAt(i);
 
+            i++;
 
-            if (index >= text.length) {
+            typeTimer =
+                setTimeout(
+                    type,
+                    18
+                );
 
-                clearInterval(interval);
+        } else {
 
-                state.typing = false;
+            typing = false;
 
-                resolve();
-
+            if (callback) {
+                callback();
             }
+        }
+    }
 
-        }, speed);
+    type();
+}
+
+
+/* =========================================================
+   DIALOGUE
+========================================================= */
+
+function say(
+    character,
+    text,
+    type = "normal"
+) {
+
+    speaker.textContent =
+        character || "";
+
+    dialogue.className =
+        "";
+
+    if (type === "thought") {
+        dialogue.classList.add(
+            "thought"
+        );
+    }
+
+    if (type === "whisper") {
+        dialogue.classList.add(
+            "whisper"
+        );
+    }
+
+    typeText(text);
+
+    choices.innerHTML =
+        "";
+}
+
+
+/* =========================================================
+   SCENE STEP
+========================================================= */
+
+function step(scene) {
+
+    currentScene =
+        scene;
+
+    if (!scene) {
+        return;
+    }
+
+    if (scene.image) {
+
+        showImage(
+            scene.image,
+            scene.effect || "normal"
+        );
+
+    }
+
+    if (scene.music) {
+
+        playMusic(
+            scene.music,
+            scene.volume || .7
+        );
+
+    }
+
+    if (scene.sound) {
+        playSound(scene.sound);
+    }
+
+    if (scene.flash) {
+        flashScreen();
+    }
+
+    if (scene.pause) {
+
+        setTimeout(
+            () => {},
+            scene.pause
+        );
+    }
+
+    say(
+        scene.character,
+        scene.text,
+        scene.type
+    );
+}
+
+
+/* =========================================================
+   NEXT SCENE
+========================================================= */
+
+function nextScene() {
+
+    if (typing) {
+
+        clearTimeout(
+            typeTimer
+        );
+
+        dialogue.textContent =
+            currentText;
+
+        typing = false;
+
+        return;
+    }
+
+    if (!currentScene) {
+        return;
+    }
+
+    if (
+        currentScene.next
+    ) {
+
+        currentScene.next();
+
+    }
+
+}
+
+
+/* =========================================================
+   CLICK DIALOGUE
+========================================================= */
+
+dialogueBox.addEventListener(
+    "click",
+    () => {
+
+        if (
+            choices.children.length > 0
+        ) {
+            return;
+        }
+
+        nextScene();
+
+    }
+);
+
+
+/* =========================================================
+   CHOICE SYSTEM
+========================================================= */
+
+function showChoices(
+    list
+) {
+
+    choices.innerHTML =
+        "";
+
+    list.forEach(choice => {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.className =
+            "choice";
+
+        button.textContent =
+            choice.text;
+
+        button.onclick = () => {
+
+            choices.innerHTML =
+                "";
+
+            choice.action();
+
+        };
+
+        choices.appendChild(
+            button
+        );
 
     });
-
-}
-
-
-/* =========================================================
-   FORMAT TEXT
-========================================================= */
-
-function formatText(text) {
-
-    return text.replace(
-        "{{name}}",
-        state.playerName
-    );
-
-}
-
-
-/* =========================================================
-   DISPLAY DIALOGUE
-========================================================= */
-
-async function displayDialogue(line) {
-
-    state.waiting = true;
-
-    choicesContainer.classList.add("hidden");
-
-    const text = formatText(line.text || "");
-
-    speakerName.textContent = line.speaker || "";
-
-
-    dialogueText.className = "";
-
-
-    if (line.type === "thought") {
-
-        dialogueText.classList.add("thought");
-
-    }
-
-
-    if (line.type === "whisper") {
-
-        dialogueText.classList.add("whisper");
-
-    }
-
-
-    await typeText(
-        text,
-        dialogueText,
-        line.type === "thought" ? 24 : 28
-    );
-
-
-    state.waiting = false;
 
 }
 
@@ -1206,487 +683,1288 @@ async function displayDialogue(line) {
    NAME INPUT
 ========================================================= */
 
-function requestName() {
+function askName(
+    callback
+) {
 
-    return new Promise(resolve => {
+    nameOverlay.classList.remove(
+        "hidden"
+    );
 
-        nameOverlay.classList.remove("hidden");
+    nameInput.value =
+        playerName === "Y/N"
+        ? ""
+        : playerName;
 
-        const input =
-            document.getElementById("name-input");
+    setTimeout(
+        () => nameInput.focus(),
+        100
+    );
 
-        input.value = "";
+    nameConfirm.onclick =
+        () => {
 
-        setTimeout(() => {
+            const value =
+                nameInput.value
+                    .trim();
 
-            input.focus();
+            playerName =
+                value || "Y/N";
 
-        }, 200);
-
-
-        const confirm = () => {
-
-            state.playerName =
-                input.value.trim() || "Y/N";
-
-            nameOverlay.classList.add("hidden");
-
-            input.removeEventListener(
-                "keydown",
-                keyHandler
+            localStorage.setItem(
+                "house_player_name",
+                playerName
             );
 
-            resolve();
+            nameOverlay.classList.add(
+                "hidden"
+            );
+
+            callback();
 
         };
-
-
-        const keyHandler = event => {
-
-            if (event.key === "Enter") {
-
-                confirm();
-
-            }
-
-        };
-
-
-        document
-            .getElementById("name-confirm")
-            .onclick = confirm;
-
-
-        input.addEventListener(
-            "keydown",
-            keyHandler
-        );
-
-    });
-
 }
 
 
 /* =========================================================
-   CHOICE SYSTEM
+   PART 1
 ========================================================= */
 
-function showChoices(choices) {
+function startPart1() {
 
-    return new Promise(resolve => {
+    currentChapter = 1;
 
-        choicesContainer.innerHTML = "";
+    endingScreen.classList.add(
+        "hidden"
+    );
 
-        choicesContainer.classList.remove("hidden");
+    showScreen(
+        gameScreen
+    );
+
+    document
+        .getElementById(
+            "chapterIndicator"
+        )
+        .textContent =
+        "CHAPTER I — THE RETURN";
+
+    playSound(
+        "sfx_ring"
+    );
+
+    playMusic(
+        "heart",
+        .9
+    );
+
+    setBackground(
+        "ben_beach"
+    );
+
+    showImage(
+        "ben_beach"
+    );
+
+    scene1();
+}
 
 
-        choices.forEach(choice => {
+/* =========================================================
+   MEMORY
+========================================================= */
 
-            const button =
-                document.createElement("button");
+function scene1() {
 
-            button.className = "choice-button";
+    say(
+        null,
+        "..."
+    );
 
-            button.textContent = choice.text;
+    currentScene = {
+
+        next: () => {
+
+            playMusic(
+                "ocean",
+                .9
+            );
+
+            flashScreen();
+
+            showImage(
+                "ben_beach"
+            );
+
+            setTimeout(
+                () => {
+
+                    say(
+                        "Ben",
+                        "Promise me we won't forget this summer."
+                    );
+
+                    currentScene = {
+                        next: scene2
+                    };
+
+                },
+                800
+            );
+        }
+
+    };
+}
 
 
-            button.onclick = () => {
+function scene2() {
 
-                choicesContainer.classList.add("hidden");
+    playSound(
+        "sfx_hit"
+    );
 
-                resolve(choice.action);
+    playSound(
+        "sfx_sting"
+    );
+
+    flashScreen();
+
+    showImage(
+        "ben_bleeding",
+        "jerk"
+    );
+
+    say(
+        "Ben",
+        "..."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "ben_dead"
+            );
+
+            say(
+                "Ben",
+                "You left me there."
+            );
+
+            currentScene = {
+
+                next: wakeUp
 
             };
 
-
-            choicesContainer.appendChild(button);
-
-        });
-
-    });
-
-}
-
-
-/* =========================================================
-   FIND SCENE
-========================================================= */
-
-function findSceneById(id) {
-
-    return chapters[state.chapter]
-        .scenes
-        .findIndex(scene => scene.id === id);
-
-}
-
-
-/* =========================================================
-   PLAY CHAPTER
-========================================================= */
-
-async function playChapter(number) {
-
-    state.chapter = number;
-
-    state.sceneIndex = 0;
-
-    state.playerName =
-        localStorage.getItem("the-house-name") ||
-        "Y/N";
-
-
-    showScreen(screens.story);
-
-
-    const chapter = chapters[number];
-
-
-    document.getElementById(
-        "chapter-label"
-    ).textContent = chapter.label;
-
-
-    await playScene();
-
-
-}
-
-
-/* =========================================================
-   PLAY SCENE
-========================================================= */
-
-async function playScene() {
-
-    const chapter = chapters[state.chapter];
-
-    const scenes = chapter.scenes;
-
-
-    if (state.sceneIndex >= scenes.length) {
-
-        finishChapter();
-
-        return;
-
-    }
-
-
-    const scene = scenes[state.sceneIndex];
-
-
-    progressBar.style.width =
-        `${(state.sceneIndex / scenes.length) * 100}%`;
-
-
-    /* Image */
-
-    setScene(
-        scene.image,
-        scene.effect
-    );
-
-
-    /* Audio */
-
-    if (scene.music) {
-
-        playMusic(
-            scene.music,
-            scene.music === "car" ? .7 : .55
-        );
-
-    }
-
-
-    if (scene.sfx) {
-
-        playSFX(scene.sfx);
-
-    }
-
-
-    /* Special name input */
-
-    if (scene.inputName) {
-
-        await wait(500);
-
-        await requestName();
-
-        localStorage.setItem(
-            "the-house-name",
-            state.playerName
-        );
-
-    }
-
-
-    /* Dialogue */
-
-    for (const line of scene.dialogue || []) {
-
-        await displayDialogue(line);
-
-        await waitForContinue();
-
-    }
-
-
-    /* Choices */
-
-    if (scene.choices) {
-
-        const action =
-            await showChoices(scene.choices);
-
-        const branchIndex =
-            findSceneById(action);
-
-        if (branchIndex !== -1) {
-
-            state.sceneIndex = branchIndex;
-
-            await playScene();
-
-            return;
-
         }
 
-    }
-
-
-    /* Explicit next */
-
-    if (scene.next) {
-
-        const nextIndex =
-            findSceneById(scene.next);
-
-        if (nextIndex !== -1) {
-
-            state.sceneIndex = nextIndex;
-
-            await playScene();
-
-            return;
-
-        }
-
-    }
-
-
-    state.sceneIndex++;
-
-    await wait(250);
-
-    await playScene();
-
+    };
 }
 
 
 /* =========================================================
-   WAIT FOR PLAYER
+   CAR
 ========================================================= */
 
-function waitForContinue() {
-
-    return new Promise(resolve => {
-
-        state.waiting = false;
-
-        const handler = () => {
-
-            document.removeEventListener(
-                "click",
-                handler
-            );
-
-            document.removeEventListener(
-                "keydown",
-                keyHandler
-            );
-
-            resolve();
-
-        };
-
-
-        const keyHandler = event => {
-
-            if (
-                event.key === " " ||
-                event.key === "Enter"
-            ) {
-
-                handler();
-
-            }
-
-        };
-
-
-        document.addEventListener(
-            "click",
-            handler,
-            { once: true }
-        );
-
-
-        document.addEventListener(
-            "keydown",
-            keyHandler
-        );
-
-    });
-
-}
-
-
-/* =========================================================
-   FINISH CHAPTER
-========================================================= */
-
-function finishChapter() {
+function wakeUp() {
 
     stopMusic();
 
-    progressBar.style.width = "100%";
+    setTimeout(
+        () => {
 
-
-    if (state.chapter === 1) {
-
-        showScreen(screens.end);
-
-        saveProgress();
-
-    } else {
-
-        showScreen(screens.chapters);
-
-    }
-
-}
-
-
-/* =========================================================
-   SAVE
-========================================================= */
-
-function saveProgress() {
-
-    localStorage.setItem(
-        state.saveKey,
-        JSON.stringify({
-
-            chapter: state.chapter,
-
-            playerName: state.playerName
-
-        })
-    );
-
-}
-
-
-/* =========================================================
-   LOAD
-========================================================= */
-
-function loadProgress() {
-
-    try {
-
-        const saved =
-            JSON.parse(
-                localStorage.getItem(
-                    state.saveKey
-                )
+            playSound(
+                "sfx_ring"
             );
 
+            playMusic(
+                "car",
+                .7
+            );
 
-        if (!saved) {
-            return false;
+            showImage(
+                "elias_1"
+            );
+
+            say(
+                null,
+                "My chest hurts.",
+                "thought"
+            );
+
+            currentScene = {
+                next: wakeUp2
+            };
+
+        },
+        500
+    );
+}
+
+
+function wakeUp2() {
+
+    showImage(
+        "elias_2"
+    );
+
+    say(
+        "Elias",
+        "Hey."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "elias_1"
+            );
+
+            say(
+                "Elias",
+                "Hey."
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    showImage(
+                        "elias_3"
+                    );
+
+                    say(
+                        "Elias",
+                        "You were screaming again."
+                    );
+
+                    currentScene = {
+                        next: wakeUp3
+                    };
+
+                }
+
+            };
+
         }
 
-
-        state.chapter =
-            saved.chapter || 1;
-
-
-        state.playerName =
-            saved.playerName || "Y/N";
+    };
+}
 
 
-        return true;
+function wakeUp3() {
 
-    } catch {
+    say(
+        null,
+        "Again?",
+        "thought"
+    );
 
-        return false;
+    currentScene = {
+
+        next: () => {
+
+            say(
+                null,
+                "My throat burns.",
+                "thought"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        null,
+                        "Like I swallowed seawater.",
+                        "thought"
+                    );
+
+                    currentScene = {
+                        next: wakeUp4
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+function wakeUp4() {
+
+    showImage(
+        "elias_1"
+    );
+
+    say(
+        "Elias",
+        "You still with me?"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "elias_2"
+            );
+
+            say(
+                "Elias",
+                "What was your name again?"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    askName(
+                        () => {
+
+                            showImage(
+                                "elias_1"
+                            );
+
+                            say(
+                                "Elias",
+                                playerName + ". Right."
+                            );
+
+                            currentScene = {
+                                next:
+                                    minaCar
+                            };
+
+                        }
+                    );
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   MINA IN CAR
+========================================================= */
+
+function minaCar() {
+
+    showImage(
+        "mina_1"
+    );
+
+    say(
+        "Mina",
+        "Can we just get this over with?"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                null,
+                "Nobody is the same anymore.",
+                "thought"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        null,
+                        "Not after last year.",
+                        "thought"
+                    );
+
+                    currentScene = {
+                        next:
+                            flashback
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   FLASHBACK
+========================================================= */
+
+function flashback() {
+
+    playSound(
+        "sfx_sting"
+    );
+
+    flashScreen();
+
+    showImage(
+        "ben_bleeding"
+    );
+
+    setTimeout(
+        () => {
+
+            playSound(
+                "memory_glitch"
+            );
+
+            showImage(
+                "elias_1"
+            );
+
+            say(
+                "Elias",
+                "We're almost there."
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        "Elias",
+                        "We cut all ties with this place."
+                    );
+
+                    currentScene = {
+
+                        next: () => {
+
+                            say(
+                                "Elias",
+                                "Clean any evidence if there is any left."
+                            );
+
+                            currentScene = {
+
+                                next: () => {
+
+                                    say(
+                                        null,
+                                        "But what evidence.",
+                                        "thought"
+                                    );
+
+                                    currentScene = {
+
+                                        next:
+                                            flashback2
+
+                                    };
+
+                                }
+
+                            };
+
+                        }
+
+                    };
+
+                }
+
+            };
+
+        },
+        250
+    );
+}
+
+
+function flashback2() {
+
+    showImage(
+        "elias_3"
+    );
+
+    say(
+        "Elias",
+        "Then we leave."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showChoices([
+
+                {
+                    text:
+                        "Why are you nervous?",
+
+                    action:
+                        nervousChoice
+                },
+
+                {
+                    text:
+                        "We shouldn't have come back here.",
+
+                    action:
+                        backChoice
+                },
+
+                {
+                    text:
+                        "Stay silent.",
+
+                    action:
+                        silentChoice
+                }
+
+            ]);
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   CHOICES
+========================================================= */
+
+function nervousChoice() {
+
+    showImage(
+        "elias_1"
+    );
+
+    say(
+        "Elias",
+        "We're driving back to the place I despise."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                "Elias",
+                "How do you want me to act?"
+            );
+
+            currentScene = {
+                next:
+                    houseArrival
+            };
+
+        }
+
+    };
+}
+
+
+function backChoice() {
+
+    showImage(
+        "mina_3"
+    );
+
+    say(
+        "Mina",
+        "Then why did you agree to come?"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                "Mina",
+                "Regretting it now is useless."
+            );
+
+            currentScene = {
+                next:
+                    houseArrival
+            };
+
+        }
+
+    };
+}
+
+
+function silentChoice() {
+
+    playSound(
+        "sfx_radio"
+    );
+
+    say(
+        null,
+        "The radio crackles softly.",
+        "thought"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            playSound(
+                "sfx_whisper"
+            );
+
+            say(
+                null,
+                "don't leave me",
+                "whisper"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    showImage(
+                        "mina_2"
+                    );
+
+                    say(
+                        "Mina",
+                        "I hate this."
+                    );
+
+                    currentScene = {
+                        next:
+                            houseArrival
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   HOUSE ARRIVAL
+========================================================= */
+
+function houseArrival() {
+
+    stopMusic();
+
+    setTimeout(
+        () => {
+
+            playMusic(
+                "ocean",
+                .6
+            );
+
+            showImage(
+                "house"
+            );
+
+            say(
+                null,
+                "I forgot how quiet this place was.",
+                "thought"
+            );
+
+            currentScene = {
+
+                next:
+                    upstairs
+
+            };
+
+        },
+        800
+    );
+}
+
+
+function upstairs() {
+
+    playSound(
+        "sfx_creak"
+    );
+
+    showImage(
+        "upstairs"
+    );
+
+    say(
+        null,
+        "Something moved upstairs.",
+        "thought"
+    );
+
+    currentScene = {
+
+        next: houseMina1
+
+    };
+}
+
+
+/* =========================================================
+   IMPORTANT:
+   mina1 AND mina_1 ARE DIFFERENT.
+========================================================= */
+
+function houseMina1() {
+
+    showImage(
+        "mina1"
+    );
+
+    say(
+        "Mina",
+        "The air smells different."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                "Elias",
+                "Doesn't it smell weird?"
+            );
+
+            currentScene = {
+                next:
+                    houseMina2
+            };
+
+        }
+
+    };
+}
+
+
+function houseMina2() {
+
+    showImage(
+        "mina2"
+    );
+
+    say(
+        "Mina",
+        "You mean like a dead body rotten."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "mina3"
+            );
+
+            say(
+                "Mina",
+                "Do you ever think about how little he stayed alive?"
+            );
+
+            currentScene = {
+                next:
+                    houseQuestion
+            };
+
+        }
+
+    };
+}
+
+
+function houseQuestion() {
+
+    playSound(
+        "sfx_sting"
+    );
+
+    say(
+        "Elias",
+        "And why would you ask that?"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "mina4"
+            );
+
+            say(
+                "Mina",
+                "No reason."
+            );
+
+            currentScene = {
+                next:
+                    houseOutside
+            };
+
+        }
+
+    };
+}
+
+
+function houseOutside() {
+
+    showImage(
+        "mina_elias"
+    );
+
+    say(
+        "Elias",
+        "We're standing outside talking like ghosts."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                "Elias",
+                "Ben would've made fun of us for this."
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        "Elias",
+                        "Ben hated sunsets here."
+                    );
+
+                    currentScene = {
+
+                        next: () => {
+
+                            say(
+                                "Elias",
+                                "Still, he should have come, shouldn't he?"
+                            );
+
+                            currentScene = {
+
+                                next:
+                                    benHouse
+
+                            };
+
+                        }
+
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+function benHouse() {
+
+    showImage(
+        "elias1"
+    );
+
+    say(
+        "Elias",
+        "Ben hated this house."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                null,
+                "That isn't true.",
+                "thought"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        "Elias",
+                        "Especially after that incident started staying here."
+                    );
+
+                    currentScene = {
+
+                        next: () => {
+
+                            say(
+                                "Elias",
+                                "He knew if he came we would come too."
+                            );
+
+                            currentScene = {
+
+                                next: () => {
+
+                                    say(
+                                        "Elias",
+                                        "...Let's just get this over with."
+                                    );
+
+                                    currentScene = {
+                                        next:
+                                            watcher
+                                    };
+
+                                }
+
+                            };
+
+                        }
+
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   SOMETHING WATCHING
+========================================================= */
+
+function watcher() {
+
+    playSound(
+        "sfx_creak"
+    );
+
+    playSound(
+        "sfx_sting"
+    );
+
+    showImage(
+        "upstairs",
+        "jerk"
+    );
+
+    say(
+        null,
+        "Someone is watching us.",
+        "thought"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "mina2"
+            );
+
+            say(
+                "Mina",
+                "...Do you think she cleaned it all up?"
+            );
+
+            currentScene = {
+
+                next: () => {
+
+                    say(
+                        "Elias",
+                        "Cleaned what?"
+                    );
+
+                    currentScene = {
+
+                        next:
+                            cryptic
+
+                    };
+
+                }
+
+            };
+
+        }
+
+    };
+}
+
+
+function cryptic() {
+
+    showImage(
+        "elias2"
+    );
+
+    say(
+        "Elias",
+        "...There wasn't so much of that, you know."
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            showImage(
+                "mina3"
+            );
+
+            say(
+                "Mina",
+                "Why are you being so cryptic?"
+            );
+
+            currentScene = {
+
+                next:
+                    doorScene
+
+            };
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   DOOR
+========================================================= */
+
+function doorScene() {
+
+    playSound(
+        "sfx_door"
+    );
+
+    showImage(
+        "door"
+    );
+
+    say(
+        null,
+        "The front door is already open.",
+        "thought"
+    );
+
+    currentScene = {
+
+        next:
+            endPart1
+
+    };
+}
+
+
+/* =========================================================
+   END PART 1
+========================================================= */
+
+function endPart1() {
+
+    stopMusic();
+
+    dialogueBox.style.opacity =
+        "0";
+
+    setTimeout(
+        () => {
+
+            endingScreen.classList.remove(
+                "hidden"
+            );
+
+        },
+        1000
+    );
+}
+
+
+/* =========================================================
+   CHAPTER 2
+========================================================= */
+
+function startChapter2() {
+
+    currentChapter = 2;
+
+    document
+        .getElementById(
+            "chapterIndicator"
+        )
+        .textContent =
+        "CHAPTER II";
+
+    showScreen(
+        gameScreen
+    );
+
+    /*
+       Put your existing Chapter 2
+       scenes here.
+
+       Example:
+
+       showImage("your_chapter_2_image");
+
+       say(
+           "Elias",
+           "Your Chapter 2 dialogue."
+       );
+    */
+
+    showImage(
+        "house"
+    );
+
+    say(
+        null,
+        "Chapter II begins...",
+        "thought"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                null,
+                "Your existing Chapter 2 content can be connected here.",
+                "thought"
+            );
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   CHAPTER 3
+========================================================= */
+
+function startChapter3() {
+
+    currentChapter = 3;
+
+    document
+        .getElementById(
+            "chapterIndicator"
+        )
+        .textContent =
+        "CHAPTER III";
+
+    showScreen(
+        gameScreen
+    );
+
+    /*
+       Put your existing Chapter 3
+       scenes here.
+    */
+
+    showImage(
+        "upstairs"
+    );
+
+    say(
+        null,
+        "Chapter III begins...",
+        "thought"
+    );
+
+    currentScene = {
+
+        next: () => {
+
+            say(
+                null,
+                "Your existing Chapter 3 content can be connected here.",
+                "thought"
+            );
+
+        }
+
+    };
+}
+
+
+/* =========================================================
+   START BUTTON
+========================================================= */
+
+startButton.addEventListener(
+    "click",
+    () => {
+
+        startPart1();
 
     }
-
-}
-
-
-/* =========================================================
-   UTILITY
-========================================================= */
-
-function wait(ms) {
-
-    return new Promise(resolve => {
-
-        setTimeout(resolve, ms);
-
-    });
-
-}
+);
 
 
 /* =========================================================
-   BUTTON EVENTS
+   CHAPTER SELECT BUTTON
 ========================================================= */
 
-document
-    .getElementById("start-button")
-    .addEventListener("click", () => {
+chapterButton.addEventListener(
+    "click",
+    () => {
 
-        unlockAudio();
+        showScreen(
+            chapterScreen
+        );
 
-        showScreen(screens.chapters);
-
-    });
-
-
-document
-    .getElementById("continue-button")
-    .addEventListener("click", () => {
-
-        unlockAudio();
-
-        showScreen(screens.chapters);
-
-    });
+    }
+);
 
 
-document
-    .getElementById("back-to-title")
-    .addEventListener("click", () => {
+/* =========================================================
+   BACK
+========================================================= */
 
-        showScreen(screens.start);
+backToTitle.addEventListener(
+    "click",
+    () => {
 
-    });
+        showScreen(
+            titleScreen
+        );
 
-
-document
-    .getElementById("end-chapters")
-    .addEventListener("click", () => {
-
-        showScreen(screens.chapters);
-
-    });
+    }
+);
 
 
 /* =========================================================
@@ -1694,7 +1972,9 @@ document
 ========================================================= */
 
 document
-    .querySelectorAll(".chapter-card")
+    .querySelectorAll(
+        ".chapterCard"
+    )
     .forEach(card => {
 
         card.addEventListener(
@@ -1702,14 +1982,29 @@ document
             () => {
 
                 const chapter =
-                    Number(
-                        card.dataset.chapter
-                    );
+                    card.dataset.chapter;
 
+                if (chapter === "1") {
 
-                unlockAudio();
+                    startPart1();
 
-                playChapter(chapter);
+                }
+
+                else if (
+                    chapter === "2"
+                ) {
+
+                    startChapter2();
+
+                }
+
+                else if (
+                    chapter === "3"
+                ) {
+
+                    startChapter3();
+
+                }
 
             }
         );
@@ -1718,52 +2013,126 @@ document
 
 
 /* =========================================================
-   PAUSE
+   GAME MENU
 ========================================================= */
 
 document
-    .getElementById("story-menu")
-    .addEventListener("click", () => {
+    .getElementById(
+        "gameMenuButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
 
-        state.paused = true;
+            gameMenu.classList.toggle(
+                "hidden"
+            );
 
-        music.pause();
-
-        pauseMenu.classList.remove("hidden");
-
-    });
-
-
-document
-    .getElementById("resume-button")
-    .addEventListener("click", () => {
-
-        state.paused = false;
-
-        pauseMenu.classList.add("hidden");
-
-        music.play().catch(() => {});
-
-    });
+        }
+    );
 
 
 document
-    .getElementById("menu-button")
-    .addEventListener("click", () => {
+    .getElementById(
+        "menuClose"
+    )
+    .addEventListener(
+        "click",
+        () => {
 
-        state.paused = false;
+            gameMenu.classList.add(
+                "hidden"
+            );
 
-        pauseMenu.classList.add("hidden");
+        }
+    );
 
-        stopMusic();
 
-        showScreen(screens.chapters);
+document
+    .getElementById(
+        "menuRestart"
+    )
+    .addEventListener(
+        "click",
+        () => {
 
-    });
+            gameMenu.classList.add(
+                "hidden"
+            );
+
+            if (
+                currentChapter === 1
+            ) {
+                startPart1();
+            }
+
+            if (
+                currentChapter === 2
+            ) {
+                startChapter2();
+            }
+
+            if (
+                currentChapter === 3
+            ) {
+                startChapter3();
+            }
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "menuChapters"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            gameMenu.classList.add(
+                "hidden"
+            );
+
+            stopMusic();
+
+            showScreen(
+                chapterScreen
+            );
+
+        }
+    );
 
 
 /* =========================================================
-   GLOBAL CONTINUE INPUT
+   ENDING BUTTON
+========================================================= */
+
+document
+    .getElementById(
+        "endingChapters"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            endingScreen.classList.add(
+                "hidden"
+            );
+
+            dialogueBox.style.opacity =
+                "1";
+
+            showScreen(
+                chapterScreen
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   KEYBOARD
 ========================================================= */
 
 document.addEventListener(
@@ -1771,15 +2140,36 @@ document.addEventListener(
     event => {
 
         if (
-            event.key === "Escape" &&
-            screens.story.classList.contains("active")
+            event.code === "Space" ||
+            event.code === "Enter"
         ) {
 
-            state.paused = !state.paused;
+            if (
+                gameScreen.classList.contains(
+                    "active"
+                )
+            ) {
 
-            pauseMenu.classList.toggle(
-                "hidden",
-                !state.paused
+                if (
+                    !nameOverlay.classList.contains(
+                        "hidden"
+                    )
+                ) {
+                    return;
+                }
+
+                nextScene();
+
+            }
+
+        }
+
+        if (
+            event.code === "Escape"
+        ) {
+
+            gameMenu.classList.toggle(
+                "hidden"
             );
 
         }
@@ -1789,24 +2179,55 @@ document.addEventListener(
 
 
 /* =========================================================
-   STARTUP
+   PRELOAD IMPORTANT IMAGES
 ========================================================= */
 
-window.addEventListener(
-    "load",
-    () => {
+const preloadImages = [
 
-        const hasSave =
-            loadProgress();
+    "ben_beach",
+    "ben_bleeding",
+    "ben_dead",
 
+    "elias_1",
+    "elias_2",
+    "elias_3",
 
-        if (hasSave) {
+    "mina_1",
+    "mina_2",
+    "mina_3",
 
-            document
-                .getElementById("continue-button")
-                .classList.remove("hidden");
+    "house",
+    "upstairs",
 
-        }
+    "mina1",
+    "mina2",
+    "mina3",
+    "mina4",
+
+    "mina_elias",
+
+    "elias1",
+    "elias2",
+
+    "door"
+];
+
+preloadImages.forEach(
+    name => {
+
+        findImage(
+            name,
+            () => {}
+        );
 
     }
+);
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+showScreen(
+    titleScreen
 );
