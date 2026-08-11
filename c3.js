@@ -1,0 +1,1 @@
+window.chapter3Data = [];
