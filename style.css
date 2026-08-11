@@ -1,0 +1,1721 @@
+/* =========================================================
+   THE HOUSE
+   HORROR INTERACTIVE STORY
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+
+    --black: #030303;
+    --dark: #080808;
+    --dark-two: #101010;
+
+    --white: #eeeeee;
+    --muted: #999999;
+
+    --red: #8d1515;
+    --bright-red: #c51d1d;
+
+    --blue: #8fbcd1;
+
+    --border: rgba(255,255,255,0.12);
+
+    --transition: 0.6s cubic-bezier(.22,.61,.36,1);
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: var(--black);
+
+    color: var(--white);
+
+    font-family: 'Inter', sans-serif;
+}
+
+
+button,
+input {
+
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   GAME
+========================================================= */
+
+#game {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    background: #000;
+}
+
+
+/* =========================================================
+   SCREENS
+========================================================= */
+
+.screen {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: none;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
+
+    transform: scale(1.02);
+}
+
+
+.screen.active {
+
+    display: flex;
+
+    opacity: 1;
+
+    pointer-events: auto;
+
+    transform: scale(1);
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+#background {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 0;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #151515 0%,
+            #050505 60%,
+            #000 100%
+        );
+
+    pointer-events: none;
+}
+
+
+#vignette {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 90;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 35%,
+            rgba(0,0,0,.45) 65%,
+            rgba(0,0,0,.95) 100%
+        );
+}
+
+
+#grain {
+
+    position: fixed;
+
+    inset: -50%;
+
+    z-index: 95;
+
+    pointer-events: none;
+
+    opacity: .08;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.5'/%3E%3C/svg%3E");
+
+    animation: grain 0.25s steps(2) infinite;
+}
+
+
+#scanlines {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 96;
+
+    pointer-events: none;
+
+    opacity: .025;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            #fff 3px
+        );
+}
+
+
+@keyframes grain {
+
+    0% {
+        transform: translate(0,0);
+    }
+
+    25% {
+        transform: translate(-2%,2%);
+    }
+
+    50% {
+        transform: translate(2%,-1%);
+    }
+
+    75% {
+        transform: translate(-1%,-2%);
+    }
+
+    100% {
+        transform: translate(1%,1%);
+    }
+}
+
+
+/* =========================================================
+   FLASH
+========================================================= */
+
+#flash {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 200;
+
+    background: white;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+.flash-active {
+
+    animation: flash .45s ease;
+}
+
+
+@keyframes flash {
+
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: .9;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   GLITCH
+========================================================= */
+
+#glitch-layer {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 150;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            transparent 45%,
+            rgba(255,0,0,.1) 46%,
+            transparent 47%
+        );
+
+}
+
+
+.glitch-active {
+
+    animation: glitch .35s steps(4);
+}
+
+
+@keyframes glitch {
+
+    0% {
+        opacity: 0;
+        transform: translate(0);
+    }
+
+    20% {
+        opacity: .6;
+        transform: translate(-5px, 2px);
+    }
+
+    40% {
+        opacity: .3;
+        transform: translate(6px,-2px);
+    }
+
+    60% {
+        opacity: .5;
+        transform: translate(-3px,1px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(0);
+    }
+}
+
+
+/* =========================================================
+   START SCREEN
+========================================================= */
+
+#start-screen {
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            rgba(0,0,0,.35),
+            rgba(0,0,0,.8)
+        ),
+        url("ben_beach.png")
+        center / cover;
+
+}
+
+
+#start-screen::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at center,
+            transparent 0%,
+            rgba(0,0,0,.3) 40%,
+            rgba(0,0,0,.9) 100%
+        );
+
+    animation: atmosphere 8s ease-in-out infinite alternate;
+}
+
+
+@keyframes atmosphere {
+
+    from {
+        opacity: .6;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+.title-container {
+
+    position: relative;
+
+    z-index: 10;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    animation: titleEnter 2s ease forwards;
+}
+
+
+@keyframes titleEnter {
+
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+        filter: blur(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+
+.small-title {
+
+    font-size: 11px;
+
+    letter-spacing: 6px;
+
+    color: rgba(255,255,255,.55);
+
+    margin-bottom: 25px;
+}
+
+
+.title-container h1 {
+
+    font-family: 'Cinzel', serif;
+
+    font-weight: 500;
+
+    font-size: clamp(60px, 11vw, 150px);
+
+    letter-spacing: 15px;
+
+    line-height: .9;
+
+    color: #eee;
+
+    text-shadow:
+        0 0 30px rgba(255,255,255,.1),
+        0 0 100px rgba(0,0,0,1);
+
+    animation: titlePulse 5s ease-in-out infinite;
+}
+
+
+@keyframes titlePulse {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 30px rgba(255,255,255,.08),
+            0 0 100px rgba(0,0,0,1);
+    }
+
+    50% {
+        text-shadow:
+            0 0 50px rgba(255,255,255,.2),
+            0 0 120px rgba(0,0,0,1);
+    }
+}
+
+
+.title-line {
+
+    width: 180px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #aaa,
+            transparent
+        );
+
+    margin: 35px 0 25px;
+}
+
+
+.subtitle {
+
+    font-family: 'Cinzel', serif;
+
+    font-size: 14px;
+
+    letter-spacing: 3px;
+
+    color: rgba(255,255,255,.55);
+
+    margin-bottom: 45px;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.main-button {
+
+    position: relative;
+
+    border: 1px solid rgba(255,255,255,.4);
+
+    background: rgba(0,0,0,.45);
+
+    color: white;
+
+    padding: 18px 55px;
+
+    min-width: 220px;
+
+    cursor: pointer;
+
+    letter-spacing: 5px;
+
+    font-size: 12px;
+
+    overflow: hidden;
+
+    transition: .4s ease;
+
+    backdrop-filter: blur(8px);
+}
+
+
+.main-button::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: -100%;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background: white;
+
+    transition: .5s ease;
+
+    z-index: -1;
+}
+
+
+.main-button:hover {
+
+    color: #000;
+
+    border-color: white;
+
+    box-shadow:
+        0 0 30px rgba(255,255,255,.15);
+}
+
+
+.main-button:hover::before {
+
+    left: 0;
+}
+
+
+.secondary-button {
+
+    background: transparent;
+
+    border: none;
+
+    color: #999;
+
+    cursor: pointer;
+
+    margin-top: 20px;
+
+    letter-spacing: 3px;
+
+    font-size: 11px;
+
+    transition: .3s;
+}
+
+
+.secondary-button:hover {
+
+    color: white;
+}
+
+
+.start-warning {
+
+    margin-top: 45px;
+
+    font-size: 9px;
+
+    letter-spacing: 3px;
+
+    color: rgba(255,255,255,.35);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.warning-dot {
+
+    width: 5px;
+
+    height: 5px;
+
+    background: #7e1111;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0 10px #b00000;
+
+    animation: warningPulse 1.5s infinite;
+}
+
+
+@keyframes warningPulse {
+
+    0%,
+    100% {
+        opacity: .3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+
+.start-footer {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    font-size: 9px;
+
+    letter-spacing: 3px;
+
+    color: rgba(255,255,255,.2);
+}
+
+
+/* =========================================================
+   FOG
+========================================================= */
+
+.fog {
+
+    position: absolute;
+
+    width: 80vw;
+
+    height: 300px;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255,255,255,.06),
+            transparent 70%
+        );
+
+    filter: blur(30px);
+
+    pointer-events: none;
+}
+
+
+.fog-one {
+
+    bottom: 10%;
+
+    left: -20%;
+
+    animation: fogMove 20s linear infinite;
+}
+
+
+.fog-two {
+
+    bottom: 25%;
+
+    right: -30%;
+
+    animation: fogMove 30s linear infinite reverse;
+}
+
+
+.fog-three {
+
+    bottom: 0;
+
+    left: 20%;
+
+    opacity: .5;
+
+    animation: fogMove 25s linear infinite;
+}
+
+
+@keyframes fogMove {
+
+    from {
+        transform: translateX(-20%);
+    }
+
+    to {
+        transform: translateX(40%);
+    }
+}
+
+
+/* =========================================================
+   CHAPTER SELECT
+========================================================= */
+
+#chapter-screen {
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 50px;
+
+    background:
+        radial-gradient(
+            circle at 50% 30%,
+            #171717,
+            #050505 65%,
+            #000
+        );
+
+}
+
+
+.chapter-header {
+
+    text-align: center;
+
+    margin-bottom: 40px;
+}
+
+
+.chapter-eyebrow,
+.panel-eyebrow,
+.end-eyebrow {
+
+    font-size: 10px;
+
+    letter-spacing: 5px;
+
+    color: #777;
+
+    margin-bottom: 15px;
+}
+
+
+.chapter-header h2 {
+
+    font-family: 'Cinzel', serif;
+
+    font-weight: 400;
+
+    font-size: clamp(35px,5vw,60px);
+
+    letter-spacing: 10px;
+}
+
+
+.chapter-header p {
+
+    color: #666;
+
+    font-size: 12px;
+
+    margin-top: 12px;
+}
+
+
+.chapter-grid {
+
+    width: min(1000px, 90vw);
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 18px;
+}
+
+
+.chapter-card {
+
+    position: relative;
+
+    min-height: 340px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+
+    background: #080808;
+
+    color: white;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        transform .5s cubic-bezier(.22,.61,.36,1),
+        border-color .5s,
+        box-shadow .5s;
+}
+
+
+.chapter-card:hover {
+
+    transform: translateY(-10px);
+
+    border-color: rgba(255,255,255,.35);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.7);
+}
+
+
+.chapter-image {
+
+    position: absolute;
+
+    inset: 0;
+
+    background-position: center;
+
+    background-size: cover;
+
+    opacity: .35;
+
+    transition:
+        transform 1s ease,
+        opacity .5s;
+}
+
+
+.chapter-card:hover .chapter-image {
+
+    transform: scale(1.08);
+
+    opacity: .55;
+}
+
+
+.chapter-one-image {
+
+    background-image: url("ben_beach.png");
+}
+
+
+.chapter-two-image {
+
+    background-image: url("house.png");
+}
+
+
+.chapter-three-image {
+
+    background-image: url("upstairs.png");
+}
+
+
+.chapter-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            transparent 10%,
+            rgba(0,0,0,.95) 90%
+        );
+}
+
+
+.chapter-number {
+
+    position: absolute;
+
+    top: 20px;
+
+    right: 20px;
+
+    z-index: 3;
+
+    font-family: 'Cinzel', serif;
+
+    font-size: 30px;
+
+    color: rgba(255,255,255,.5);
+}
+
+
+.chapter-info {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 25px;
+
+    right: 25px;
+
+    z-index: 3;
+}
+
+
+.chapter-info span {
+
+    font-size: 9px;
+
+    letter-spacing: 4px;
+
+    color: #777;
+}
+
+
+.chapter-info h3 {
+
+    font-family: 'Cinzel', serif;
+
+    font-size: 27px;
+
+    font-weight: 400;
+
+    margin: 8px 0;
+}
+
+
+.chapter-info p {
+
+    color: #999;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+}
+
+
+.chapter-arrow {
+
+    position: absolute;
+
+    right: 22px;
+
+    bottom: 20px;
+
+    z-index: 5;
+
+    opacity: 0;
+
+    transform: translateX(-10px);
+
+    transition: .4s;
+}
+
+
+.chapter-card:hover .chapter-arrow {
+
+    opacity: 1;
+
+    transform: translateX(0);
+}
+
+
+.back-button {
+
+    margin-top: 30px;
+
+    background: none;
+
+    border: none;
+
+    color: #666;
+
+    cursor: pointer;
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+    transition: .3s;
+}
+
+
+.back-button:hover {
+
+    color: white;
+}
+
+
+/* =========================================================
+   STORY SCREEN
+========================================================= */
+
+#story-screen {
+
+    display: none;
+
+    background: black;
+}
+
+
+#story-screen.active {
+
+    display: block;
+}
+
+
+#scene-container {
+
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    background: black;
+}
+
+
+#scene-image {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    transform: scale(1.05);
+
+    filter:
+        brightness(.65)
+        contrast(1.05)
+        saturate(.7);
+
+    transition:
+        opacity .8s ease,
+        transform 8s ease,
+        filter .8s ease;
+}
+
+
+.scene-enter {
+
+    animation: sceneEnter 1.2s ease;
+}
+
+
+@keyframes sceneEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            scale(1.15)
+            translateX(20px);
+
+        filter:
+            brightness(0)
+            blur(8px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: scale(1.05);
+
+        filter:
+            brightness(.65)
+            blur(0);
+    }
+}
+
+
+#scene-darkness {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0,0,0,.65),
+            transparent 25%,
+            transparent 45%,
+            rgba(0,0,0,.95) 100%
+        );
+}
+
+
+/* =========================================================
+   STORY TOP BAR
+========================================================= */
+
+.story-topbar {
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    z-index: 20;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 25px 30px;
+
+    gap: 20px;
+}
+
+
+.icon-button {
+
+    width: 40px;
+
+    height: 40px;
+
+    background: rgba(0,0,0,.35);
+
+    border: 1px solid rgba(255,255,255,.15);
+
+    color: white;
+
+    cursor: pointer;
+
+    backdrop-filter: blur(8px);
+}
+
+
+#chapter-label {
+
+    font-size: 9px;
+
+    letter-spacing: 4px;
+
+    color: rgba(255,255,255,.5);
+}
+
+
+.story-progress {
+
+    margin-left: auto;
+
+    width: 130px;
+
+    height: 1px;
+
+    background: rgba(255,255,255,.1);
+}
+
+
+#progress-bar {
+
+    height: 100%;
+
+    width: 0;
+
+    background: rgba(255,255,255,.7);
+
+    transition: width .5s;
+}
+
+
+/* =========================================================
+   DIALOGUE
+========================================================= */
+
+#dialogue-area {
+
+    position: absolute;
+
+    z-index: 15;
+
+    left: 50%;
+
+    bottom: 5%;
+
+    width: min(850px, 90vw);
+
+    transform: translateX(-50%);
+}
+
+
+#speaker-name {
+
+    font-family: 'Cinzel', serif;
+
+    font-size: 14px;
+
+    letter-spacing: 3px;
+
+    color: #a0a0a0;
+
+    margin-bottom: 10px;
+
+    min-height: 20px;
+}
+
+
+#dialogue-box {
+
+    position: relative;
+
+    min-height: 110px;
+
+    padding: 25px 35px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(5,5,5,.9),
+            rgba(5,5,5,.65),
+            rgba(5,5,5,.9)
+        );
+
+    border-left: 1px solid rgba(255,255,255,.2);
+
+    backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 20px 80px rgba(0,0,0,.7);
+}
+
+
+#dialogue-text {
+
+    font-size: 16px;
+
+    line-height: 1.8;
+
+    color: #eee;
+
+    min-height: 30px;
+}
+
+
+/* Thoughts */
+
+.thought {
+
+    color: var(--blue) !important;
+
+    font-style: italic;
+
+    text-align: center;
+
+}
+
+
+/* Whisper */
+
+.whisper {
+
+    color: #8da3bd !important;
+
+    font-style: italic;
+
+    letter-spacing: 3px;
+
+}
+
+
+/* =========================================================
+   CONTINUE DOTS
+========================================================= */
+
+#continue-indicator {
+
+    position: absolute;
+
+    bottom: 10px;
+
+    right: 20px;
+
+    display: flex;
+
+    gap: 4px;
+
+    opacity: .5;
+}
+
+
+#continue-indicator span {
+
+    width: 3px;
+
+    height: 3px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    animation: dot 1.2s infinite;
+}
+
+
+#continue-indicator span:nth-child(2) {
+
+    animation-delay: .15s;
+}
+
+
+#continue-indicator span:nth-child(3) {
+
+    animation-delay: .3s;
+}
+
+
+@keyframes dot {
+
+    0%,
+    100% {
+        opacity: .2;
+        transform: translateY(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
+
+
+/* =========================================================
+   CHOICES
+========================================================= */
+
+#choices {
+
+    position: absolute;
+
+    z-index: 30;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: min(650px, 85vw);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.choice-button {
+
+    padding: 20px 25px;
+
+    text-align: left;
+
+    background: rgba(0,0,0,.75);
+
+    border: 1px solid rgba(255,255,255,.15);
+
+    color: #ddd;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    letter-spacing: .5px;
+
+    backdrop-filter: blur(12px);
+
+    transition: .35s;
+}
+
+
+.choice-button:hover {
+
+    background: rgba(255,255,255,.08);
+
+    border-color: rgba(255,255,255,.5);
+
+    padding-left: 35px;
+
+    color: white;
+}
+
+
+/* =========================================================
+   NAME / PAUSE OVERLAYS
+========================================================= */
+
+.overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(0,0,0,.75);
+
+    backdrop-filter: blur(12px);
+}
+
+
+.name-panel,
+.pause-panel {
+
+    width: min(450px, 85vw);
+
+    padding: 45px;
+
+    text-align: center;
+
+    background: rgba(10,10,10,.95);
+
+    border: 1px solid rgba(255,255,255,.15);
+
+    box-shadow:
+        0 30px 100px rgba(0,0,0,.8);
+}
+
+
+.name-panel h2,
+.pause-panel h2 {
+
+    font-family: 'Cinzel', serif;
+
+    font-weight: 400;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 30px;
+}
+
+
+#name-input {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin-bottom: 20px;
+
+    background: #050505;
+
+    border: 1px solid #333;
+
+    color: white;
+
+    outline: none;
+
+    text-align: center;
+
+    letter-spacing: 2px;
+}
+
+
+#name-input:focus {
+
+    border-color: #777;
+}
+
+
+/* =========================================================
+   END SCREEN
+========================================================= */
+
+#end-screen {
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle,
+            #151515,
+            #000 70%
+        );
+}
+
+
+.end-content {
+
+    animation: endEnter 2s ease;
+}
+
+
+@keyframes endEnter {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(30px);
+
+        filter: blur(10px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+
+        filter: blur(0);
+    }
+}
+
+
+.end-content h1 {
+
+    font-family: 'Cinzel', serif;
+
+    font-size: clamp(30px, 5vw, 70px);
+
+    font-weight: 400;
+
+    line-height: 1.2;
+
+    letter-spacing: 5px;
+}
+
+
+.end-content p {
+
+    color: #666;
+
+    letter-spacing: 5px;
+
+    font-size: 10px;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+.hidden {
+
+    display: none !important;
+}
+
+
+/* =========================================================
+   SCREEN SHAKE
+========================================================= */
+
+.shake {
+
+    animation: shake .35s ease;
+}
+
+
+@keyframes shake {
+
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-8px, 4px);
+    }
+
+    40% {
+        transform: translate(7px,-3px);
+    }
+
+    60% {
+        transform: translate(-5px,2px);
+    }
+
+    80% {
+        transform: translate(3px,-2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .chapter-grid {
+
+        grid-template-columns: 1fr;
+
+        max-height: 65vh;
+
+        overflow-y: auto;
+    }
+
+
+    .chapter-card {
+
+        min-height: 180px;
+    }
+
+
+    .chapter-header {
+
+        margin-bottom: 20px;
+    }
+
+
+    #chapter-screen {
+
+        padding: 25px;
+    }
+
+
+    .title-container h1 {
+
+        font-size: 60px;
+
+        letter-spacing: 8px;
+    }
+
+
+    #dialogue-area {
+
+        bottom: 3%;
+
+        width: 94vw;
+    }
+
+
+    #dialogue-box {
+
+        padding: 20px;
+
+        min-height: 100px;
+    }
+
+
+    #dialogue-text {
+
+        font-size: 14px;
+    }
+
+}
+
+
+@media (max-height: 650px) {
+
+    .title-container h1 {
+
+        font-size: 55px;
+    }
+
+
+    .subtitle {
+
+        margin-bottom: 20px;
+    }
+
+
+    .start-warning {
+
+        margin-top: 20px;
+    }
+
+}
