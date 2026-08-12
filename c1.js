@@ -140,7 +140,7 @@ window.chapter1Data = [
 
             { type: "bg", image: "mina1.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Mina", color: "#c7b2ff", text: "The air smells different." },
-            { type: "dialogue", speaker: "MC", color: "#ffffff", text: "Doesn't it smell weird?" },
+            { type: "dialogue", speaker: "[player_name]", color: "#ffffff", text: "Doesn't it smell weird?" },
 
             { type: "bg", image: "mina2.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Mina", color: "#c7b2ff", text: "You mean like a dead body rotten." },
@@ -149,7 +149,7 @@ window.chapter1Data = [
             { type: "dialogue", speaker: "Mina", color: "#c7b2ff", text: "Do you ever think about how little he stayed alive?" },
 
             { type: "sfx", src: "horror_sting.mp3" },
-            { type: "dialogue", speaker: "MC", color: "#ffffff", text: "And why would you ask that?" },
+            { type: "dialogue", speaker: "[player_name]", color: "#ffffff", text: "And why would you ask that?" },
 
             { type: "bg", image: "mina4.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Mina", color: "#c7b2ff", text: "No reason." },
@@ -158,7 +158,7 @@ window.chapter1Data = [
             { type: "dialogue", speaker: "Elias", color: "#a0a0a0", bold: true, text: "We're standing outside talking like ghosts." },
             { type: "dialogue", speaker: "Elias", color: "#a0a0a0", bold: true, text: "Ben would've made fun of us for this." },
             { type: "dialogue", speaker: "Elias", color: "#a0a0a0", bold: true, text: "Ben hated sunsets here." },
-            { type: "dialogue", speaker: "MC", color: "#ffffff", text: "Still he should have come shouldn't he" },
+            { type: "dialogue", speaker: "[player_name]", color: "#ffffff", text: "Still he should have come shouldn't he" },
 
             { type: "bg", image: "elias1.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Elias", color: "#a0a0a0", bold: true, text: "Ben hated this house." },
@@ -174,7 +174,7 @@ window.chapter1Data = [
 
             { type: "bg", image: "mina2.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Mina", color: "#c7b2ff", text: "...Do you think she cleaned it all up?" },
-            { type: "dialogue", speaker: "MC", color: "#ffffff", text: "cleaned what" },
+            { type: "dialogue", speaker: "[player_name]", color: "#ffffff", text: "cleaned what" },
 
             { type: "bg", image: "elias2.jpeg", transform: "full" },
             { type: "dialogue", speaker: "Elias", color: "#a0a0a0", bold: true, text: "...There wasn't so much of that you know." },
