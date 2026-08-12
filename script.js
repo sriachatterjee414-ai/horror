@@ -17,6 +17,8 @@ let fullDialogueText = "";
 
 let dialogueReadyToAdvance = false;
 
+let cutsceneClosing = false;
+
 
 // ============================================================
 // DOM
@@ -66,12 +68,35 @@ const confirmNameBtn =
 
 
 // ============================================================
+// PAGE LOAD CHECK
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    console.log("DEAD MAN DON'T TALK engine loaded.");
+
+    console.log(
+        "Chapter 1:",
+        window.chapter1Data
+    );
+
+    console.log(
+        "Chapter 2:",
+        window.chapter2Data
+    );
+
+});
+
+
+// ============================================================
 // START GAME
 // ============================================================
 
 document
     .getElementById("start-game-btn")
     .addEventListener("click", () => {
+
+        console.log("ENTER GAME clicked.");
 
         startOverlay.classList.add("hidden");
 
@@ -88,31 +113,80 @@ document
 
 function startChapter(chNum) {
 
-    chapterMenu.classList.add("hidden");
+    console.log(
+        "Starting chapter:",
+        chNum
+    );
 
     if (chNum === 1) {
 
+        if (!Array.isArray(window.chapter1Data)) {
+
+            console.error(
+                "chapter1Data was not loaded."
+            );
+
+            alert(
+                "Chapter 1 could not be loaded. Check c1.js."
+            );
+
+            return;
+        }
+
         currentChapter =
-            flattenScript(window.chapter1Data);
+            flattenScript(
+                window.chapter1Data
+            );
 
     }
 
     else if (chNum === 2) {
 
+        if (!Array.isArray(window.chapter2Data)) {
+
+            console.error(
+                "chapter2Data was not loaded."
+            );
+
+            alert(
+                "Chapter 2 could not be loaded. Check c2.js."
+            );
+
+            return;
+        }
+
         currentChapter =
-            flattenScript(window.chapter2Data);
+            flattenScript(
+                window.chapter2Data
+            );
 
     }
 
     else {
 
-        alert("Chapter coming soon!");
-
-        chapterMenu.classList.remove("hidden");
+        alert(
+            "Chapter coming soon!"
+        );
 
         return;
-
     }
+
+
+    console.log(
+        "Loaded steps:",
+        currentChapter.length
+    );
+
+
+    chapterMenu.classList.add("hidden");
+
+    dialogueBox.classList.add("hidden");
+
+    choiceContainer.classList.add("hidden");
+
+    nameModal.classList.add("hidden");
+
+    videoContainer.classList.add("hidden");
 
 
     currentStepIndex = 0;
@@ -130,7 +204,23 @@ function flattenScript(data) {
 
     let flat = [];
 
+    if (!Array.isArray(data)) {
+
+        console.error(
+            "Invalid chapter data:",
+            data
+        );
+
+        return flat;
+    }
+
+
     data.forEach(item => {
+
+        if (!item) {
+            return;
+        }
+
 
         if (item.nodes) {
 
@@ -151,6 +241,7 @@ function flattenScript(data) {
         }
 
     });
+
 
     return flat;
 
@@ -176,14 +267,33 @@ function executeStep() {
 
 
     const step =
-        currentChapter[currentStepIndex];
+        currentChapter[
+            currentStepIndex
+        ];
+
+
+    if (!step) {
+
+        advance();
+
+        return;
+    }
+
+
+    console.log(
+        "Step",
+        currentStepIndex,
+        step
+    );
 
 
     switch (step.type) {
 
         case "cutscene":
 
-            playCutscene(step.src);
+            playCutscene(
+                step.src
+            );
 
             break;
 
@@ -201,7 +311,9 @@ function executeStep() {
 
             playSound(step.src);
 
-            triggerSFXVisual(step.src);
+            triggerSFXVisual(
+                step.src
+            );
 
             advance();
 
@@ -223,7 +335,7 @@ function executeStep() {
 
                 advance();
 
-            }, step.duration);
+            }, step.duration || 0);
 
             break;
 
@@ -244,14 +356,18 @@ function executeStep() {
 
         case "choice":
 
-            showChoices(step.options);
+            showChoices(
+                step.options || []
+            );
 
             break;
 
 
         case "jump":
 
-            jumpToLabel(step.target);
+            jumpToLabel(
+                step.target
+            );
 
             break;
 
@@ -271,6 +387,11 @@ function executeStep() {
 
 
         default:
+
+            console.warn(
+                "Unknown step:",
+                step
+            );
 
             advance();
 
@@ -324,24 +445,6 @@ function setBgImage(step) {
     );
 
 
-    if (step.transition === "dissolve") {
-
-        bgLayer.classList.add(
-            "scene-dissolve"
-        );
-
-    }
-
-
-    if (step.transition === "fade") {
-
-        bgLayer.classList.add(
-            "scene-fade"
-        );
-
-    }
-
-
     if (step.image === "black") {
 
         bgLayer.style.backgroundImage =
@@ -358,7 +461,7 @@ function setBgImage(step) {
             "#000";
 
         bgLayer.style.backgroundImage =
-            `url('${step.image}')`;
+            `url("${step.image}")`;
 
     }
 
@@ -392,19 +495,35 @@ function setBgImage(step) {
 
 function playSound(src) {
 
+    if (!src) {
+        return;
+    }
+
+
     const audio =
         new Audio(src);
 
     audio.volume = 0.85;
 
-    audio.play().catch(() => {
 
-        console.log(
-            "Audio missing/blocked:",
-            src
-        );
+    audio.play()
+        .then(() => {
 
-    });
+            console.log(
+                "SFX playing:",
+                src
+            );
+
+        })
+        .catch(error => {
+
+            console.warn(
+                "SFX could not play:",
+                src,
+                error
+            );
+
+        });
 
 }
 
@@ -421,6 +540,8 @@ function handleMusic(step) {
 
             activeMusic.pause();
 
+            activeMusic.currentTime = 0;
+
         }
 
 
@@ -433,14 +554,25 @@ function handleMusic(step) {
         activeMusic.volume =
             0.45;
 
-        activeMusic.play().catch(() => {
 
-            console.log(
-                "Music blocked:",
-                step.src
-            );
+        activeMusic.play()
+            .then(() => {
 
-        });
+                console.log(
+                    "Music playing:",
+                    step.src
+                );
+
+            })
+            .catch(error => {
+
+                console.warn(
+                    "Music could not play:",
+                    step.src,
+                    error
+                );
+
+            });
 
     }
 
@@ -452,6 +584,8 @@ function handleMusic(step) {
         if (activeMusic) {
 
             activeMusic.pause();
+
+            activeMusic.currentTime = 0;
 
             activeMusic = null;
 
@@ -468,41 +602,126 @@ function handleMusic(step) {
 
 function playCutscene(src) {
 
+    if (!src) {
+
+        console.error(
+            "Cutscene has no source."
+        );
+
+        advance();
+
+        return;
+    }
+
+
+    console.log(
+        "Playing cutscene:",
+        src
+    );
+
+
+    cutsceneClosing = false;
+
+
     videoContainer.classList.remove(
         "hidden"
     );
 
-    cutscenePlayer.src =
-        src;
 
-    cutscenePlayer.currentTime =
-        0;
+    cutscenePlayer.pause();
 
 
-    cutscenePlayer.play().catch(() => {
+    cutscenePlayer.src = src;
 
-        closeCutscene();
+    cutscenePlayer.load();
 
-    });
+
+    cutscenePlayer.currentTime = 0;
 
 
     cutscenePlayer.onended =
         closeCutscene;
 
 
+    cutscenePlayer.onerror =
+        () => {
+
+            console.error(
+                "VIDEO ERROR:",
+                cutscenePlayer.error,
+                src
+            );
+
+            closeCutscene();
+
+        };
+
+
     skipIntroBtn.onclick =
         closeCutscene;
+
+
+    const playPromise =
+        cutscenePlayer.play();
+
+
+    if (playPromise !== undefined) {
+
+        playPromise
+            .then(() => {
+
+                console.log(
+                    "Cutscene successfully playing."
+                );
+
+            })
+            .catch(error => {
+
+                console.error(
+                    "Could not play cutscene:",
+                    error
+                );
+
+                closeCutscene();
+
+            });
+
+    }
 
 }
 
 
+// ============================================================
+// CLOSE CUTSCENE
+// ============================================================
+
 function closeCutscene() {
 
+    if (cutsceneClosing) {
+        return;
+    }
+
+
+    cutsceneClosing = true;
+
+
+    console.log(
+        "Closing cutscene."
+    );
+
+
     cutscenePlayer.pause();
+
+
+    cutscenePlayer.onended = null;
+
+    cutscenePlayer.onerror = null;
+
 
     videoContainer.classList.add(
         "hidden"
     );
+
 
     advance();
 
@@ -520,14 +739,21 @@ function showDialogue(step) {
     );
 
 
+    choiceContainer.classList.add(
+        "hidden"
+    );
+
+
     dialogueReadyToAdvance =
         false;
 
 
-    clearInterval(typeTimer);
+    clearInterval(
+        typeTimer
+    );
 
 
-    // Speaker
+    // SPEAKER
 
     if (step.speaker) {
 
@@ -580,13 +806,14 @@ function showDialogue(step) {
     }
 
 
-    // Text
+    // TEXT
 
     fullDialogueText =
-        step.text.replace(
-            /\[player_name\]/g,
-            playerName
-        );
+        String(step.text || "")
+            .replace(
+                /\[player_name\]/g,
+                playerName
+            );
 
 
     dialogueText.classList.remove(
@@ -626,19 +853,6 @@ function showDialogue(step) {
 
     dialogueText.textContent =
         "";
-
-
-    // Restart animation
-
-    dialogueText.classList.remove(
-        "dialogue-pop"
-    );
-
-    void dialogueText.offsetWidth;
-
-    dialogueText.classList.add(
-        "dialogue-pop"
-    );
 
 
     typeDialogue(
@@ -731,10 +945,8 @@ dialogueBox.addEventListener(
         }
 
 
-        // -----------------------------------------
         // FIRST CLICK:
-        // Finish typewriter
-        // -----------------------------------------
+        // finish typewriter
 
         if (isTyping) {
 
@@ -749,6 +961,7 @@ dialogueBox.addEventListener(
 
             isTyping = false;
 
+
             dialogueReadyToAdvance =
                 true;
 
@@ -761,10 +974,8 @@ dialogueBox.addEventListener(
         }
 
 
-        // -----------------------------------------
         // SECOND CLICK:
-        // Next dialogue
-        // -----------------------------------------
+        // next dialogue
 
         if (
             dialogueReadyToAdvance
@@ -875,6 +1086,10 @@ function showNameInput() {
 }
 
 
+// ============================================================
+// CONFIRM NAME
+// ============================================================
+
 function confirmName() {
 
     const value =
@@ -977,12 +1192,18 @@ function showChoices(options) {
 
 
 // ============================================================
-// JUMP
+// JUMP TO LABEL
 // ============================================================
 
 function jumpToLabel(
     targetLabel
 ) {
+
+    console.log(
+        "Jumping to:",
+        targetLabel
+    );
+
 
     for (
         let i = 0;
@@ -1000,6 +1221,7 @@ function jumpToLabel(
             currentStepIndex =
                 i + 1;
 
+
             executeStep();
 
             return;
@@ -1009,20 +1231,37 @@ function jumpToLabel(
     }
 
 
+    console.error(
+        "Label not found:",
+        targetLabel
+    );
+
+
     advance();
 
 }
 
 
 // ============================================================
-// RETURN MENU
+// RETURN TO MENU
 // ============================================================
 
 function returnToMenu() {
 
+    console.log(
+        "Returning to chapter menu."
+    );
+
+
     clearInterval(
         typeTimer
     );
+
+
+    isTyping = false;
+
+    dialogueReadyToAdvance =
+        false;
 
 
     dialogueBox.classList.add(
@@ -1035,9 +1274,24 @@ function returnToMenu() {
     );
 
 
+    nameModal.classList.add(
+        "hidden"
+    );
+
+
+    videoContainer.classList.add(
+        "hidden"
+    );
+
+
+    cutscenePlayer.pause();
+
+
     if (activeMusic) {
 
         activeMusic.pause();
+
+        activeMusic.currentTime = 0;
 
         activeMusic = null;
 
@@ -1087,9 +1341,15 @@ function horrorPulse() {
 }
 
 
+// ============================================================
+// SFX VISUAL
+// ============================================================
+
 function triggerSFXVisual(src) {
 
-    if (!src) return;
+    if (!src) {
+        return;
+    }
 
 
     if (
@@ -1150,9 +1410,7 @@ function createDialogueDoodles() {
 
 
     if (old) {
-
         old.remove();
-
     }
 
 
@@ -1206,7 +1464,9 @@ function createDialogueDoodles() {
 
     setTimeout(() => {
 
-        wrapper.remove();
+        if (wrapper.parentNode) {
+            wrapper.remove();
+        }
 
     }, 1600);
 
