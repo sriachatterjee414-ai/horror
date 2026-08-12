@@ -140,7 +140,6 @@ function setBgImage(step) {
         bgLayer.style.backgroundImage = "none";
         bgLayer.style.backgroundColor = "#000000";
     } else {
-        // Enforce JPEG path as specified
         bgLayer.style.backgroundImage = `url('${step.image}')`;
     }
 }
@@ -172,7 +171,6 @@ function playCutscene(src) {
     videoContainer.classList.remove('hidden');
     cutscenePlayer.src = src;
     cutscenePlayer.play().catch(() => {
-        // Skip on fail
         closeCutscene();
     });
 
@@ -191,14 +189,18 @@ function showDialogue(step) {
     dialogueBox.classList.remove('hidden');
 
     if (step.speaker) {
-        speakerName.textContent = step.speaker;
+        let nameTag = step.speaker;
+        if (nameTag === "MC" || nameTag === "[player_name]") {
+            nameTag = playerName;
+        }
+        speakerName.textContent = nameTag;
         speakerName.style.color = step.color || "#ffffff";
         speakerName.style.fontWeight = step.bold ? "bold" : "normal";
     } else {
         speakerName.textContent = "";
     }
 
-    let processedText = step.text.replace("[player_name]", playerName);
+    let processedText = step.text.replace(/\[player_name\]/g, playerName);
     dialogueText.textContent = processedText;
 
     if (step.italic) {
